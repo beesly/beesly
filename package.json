@@ -24,5 +24,8 @@
   "jest": {
     "setupEnvScriptFile": "test/environment.js",
     "scriptPreprocessor": "node_modules/babel-jest"
+  },
+  "dependencies": {
+    "uri-templates": "^0.1.9"
   }
 }

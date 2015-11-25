@@ -1,3 +1,5 @@
+import uriTemplate from 'uri-templates';
+
 export default class BaseResource {
   constructor(data) {
     this.internalHalLinks = {};
@@ -79,7 +81,11 @@ export default class BaseResource {
   }
 
   static get(params) {
-    return fetch('url.com').then((response) => {
+    if (!this.url) {
+      throw 'Resource url not defined';
+    }
+
+    return fetch(uriTemplate(this.url).fill(params)).then((response) => {
       return new this(response.body);
     });
   }

@@ -5,7 +5,9 @@
 
 var nextResponse = null;
 
-window.fetch = () => {
+window.fetch = (url) => {
+  window.fetch.lastUrl = url;
+
   return new Promise((resolve, reject) => {
     resolve(nextResponse);
 
