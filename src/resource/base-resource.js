@@ -1,4 +1,3 @@
-import q from 'q';
 import request from 'superagent';
 
 export default class BaseResource {
@@ -82,17 +81,17 @@ export default class BaseResource {
   }
 
   static get(params) {
-    var def = q.defer();
+    return new Promise((resolve, reject) => {
+      request
+        .get('url.com')
+        .end((err, res) => {
+          if (err) {
+            reject(err)
+          }
 
-    request
-      .get('url.com')
-      .end((err, res) => {
-        if (err) {
-          def.reject(err)
-        }
-
-        def.resolve(new this(res.body));
-      });
+          resolve(new this(res.body));
+        });
+    });
 
     return def.promise;
   }

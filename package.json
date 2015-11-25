@@ -22,7 +22,6 @@
     "jest-cli": "^0.8.0"
   },
   "dependencies": {
-    "q": "^1.4.1",
     "superagent": "^1.4.0"
   },
   "jest": {
