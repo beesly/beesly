@@ -1,5 +1,5 @@
-var q = require('q'),
-  request = require('superagent');
+import q from 'q';
+import request from 'superagent';
 
 export default class BaseResource {
   constructor(data) {
