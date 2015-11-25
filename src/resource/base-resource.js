@@ -1,7 +1,15 @@
 class BaseResource {
   constructor(data) {
+    this.internalHalLinks = {};
+
     if (data) {
       this.hydrate(data);
+    }
+  }
+
+  getLink(name) {
+    if (name in this.internalHalLinks) {
+      return this.internalHalLinks[name].href;
     }
   }
 
@@ -12,6 +20,7 @@ class BaseResource {
       }
 
       if (key === '_links') {
+        this.internalHalLinks = data[key];
         return;
       }
 
