@@ -1,4 +1,7 @@
-class BaseResource {
+var q = require('q'),
+  request = require('superagent');
+
+export default class BaseResource {
   constructor(data) {
     this.internalHalLinks = {};
     this.embeddedConfig = {};
@@ -77,6 +80,20 @@ class BaseResource {
       this[key] = data[key];
     });
   }
-}
 
-export default BaseResource;
+  static get(params) {
+    var def = q.defer();
+
+    request
+      .get('url.com')
+      .end((err, res) => {
+        if (err) {
+          def.reject(err)
+        }
+
+        def.resolve(new this(res.body));
+      });
+
+    return def.promise;
+  }
+}

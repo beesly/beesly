@@ -1,4 +1,5 @@
 import BaseResource from '../../src/resource/base-resource';
+import request from 'superagent';
 
 describe('BaseResource', () => {
   describe('hydrate()', () => {
@@ -84,4 +85,14 @@ describe('BaseResource', () => {
     });
   });
 
+  describe('static get()', () => {
+    pit('should return a hydrated instance', () => {
+      request.__setResponse({body: {name: 'bob'}});
+
+      return BaseResource.get({id: 5}).then((resource) => {
+        expect(resource).toEqual(jasmine.any(BaseResource));
+        expect(resource.name).toBe('bob');
+      });
+    });
+  });
 });
