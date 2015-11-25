@@ -11,10 +11,12 @@ describe('BaseResource', () => {
     });
 
     it('should hydrate embedded resources', function () {
-      var resource = new BaseResource();
-      resource.hydrate({_embedded: {colors: [{name: 'red'}]}});
+      var resource = new BaseResource(),
+        embedded = {colors: [{name: 'red'}]};
+      resource.hydrate({_embedded: embedded});
 
       expect(resource._embedded).toBeUndefined();
+      expect(resource.embeddedResources).toEqual(embedded);
     });
 
     it('should hydrate links', () => {
@@ -41,6 +43,44 @@ describe('BaseResource', () => {
     it('should return undefined if the link doesn\'t exist', () => {
       var resource = new BaseResource({self: {href: 'me.com'}});
       expect(resource.getLink('foobar')).toBeUndefined();
+    });
+  });
+
+  describe('getEmbedded()', () => {
+    it('should retrieve the resource by name', () => {
+      var resource = new BaseResource(),
+        embedded = {something: [{id: 100}]};
+
+      resource.hydrate({_embedded: embedded});
+
+      expect(resource.getEmbedded('something')).toEqual(embedded.something);
+    });
+
+    it('should return undefined if the resources does not exist', () => {
+      var resource = new BaseResource();
+      expect(resource.getEmbedded('something')).toBeUndefined();
+    });
+
+    it('should return a single, hydrated resource when configured', () => {
+      var resource = new BaseResource();
+      resource.hasOne('home', BaseResource);
+      resource.hydrate({_embedded: {home: [{color: 'blue'}]}});
+
+      expect(resource.getEmbedded('home')).toEqual(jasmine.any(BaseResource));
+    });
+
+    it('should return a collection of hydrated resources when configured', () => {
+      var resource = new BaseResource();
+      resource.hasMany('homies', BaseResource);
+      resource.hydrate({_embedded: {homies: [{name: 'Clark'}, {name: 'Pineapple Face'}]}});
+
+      expect(resource.getEmbedded('homies')).toEqual(jasmine.any(Array));
+      expect(resource.getEmbedded('homies').length).toBe(2);
+
+      resource.getEmbedded('homies').forEach((homie) => {
+        expect(homie).toEqual(jasmine.any(BaseResource));
+      });
+
     });
   });
 });
