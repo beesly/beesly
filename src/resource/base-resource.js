@@ -1,5 +1,3 @@
-import request from 'superagent';
-
 export default class BaseResource {
   constructor(data) {
     this.internalHalLinks = {};
@@ -81,18 +79,8 @@ export default class BaseResource {
   }
 
   static get(params) {
-    return new Promise((resolve, reject) => {
-      request
-        .get('url.com')
-        .end((err, res) => {
-          if (err) {
-            reject(err)
-          }
-
-          resolve(new this(res.body));
-        });
+    return fetch('url.com').then((response) => {
+      return new this(response.body);
     });
-
-    return def.promise;
   }
 }

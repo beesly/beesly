@@ -21,9 +21,6 @@
     "jasmine-core": "^2.1.3",
     "jest-cli": "^0.8.0"
   },
-  "dependencies": {
-    "superagent": "^1.4.0"
-  },
   "jest": {
     "setupEnvScriptFile": "test/environment.js",
     "scriptPreprocessor": "node_modules/babel-jest"
