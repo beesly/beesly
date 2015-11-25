@@ -1,4 +1,4 @@
-import BaseResource from './base-resource';
+import BaseResource from '../../src/resource/base-resource';
 
 describe('BaseResource', () => {
   describe('hydrate()', () => {
@@ -10,7 +10,7 @@ describe('BaseResource', () => {
       expect(resource.bar).toBe('none');
     });
 
-    it('should hydrate embedded resources', function () {
+    it('should hydrate embedded resources', () => {
       var resource = new BaseResource(),
         embedded = {colors: [{name: 'red'}]};
       resource.hydrate({_embedded: embedded});
@@ -83,4 +83,5 @@ describe('BaseResource', () => {
 
     });
   });
+
 });
