@@ -4,7 +4,9 @@
   "description": "Beesly makes interacting with HAL+JSON resources a joyful experience",
   "author": "Kristopher Wilson <kristopherwilson@gmail.com>",
   "license": "MIT",
+  "main": "index.js",
   "scripts": {
+    "build": "gulp build",
     "test": "jest",
     "test-dev": "jest --watch"
   },
@@ -19,8 +21,16 @@
     "babel-preset-es2015": "^6.1.18",
     "babelify": "^7.2.0",
     "browserify": "^12.0.1",
+    "del": "^2.2.0",
+    "gulp": "^3.9.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-eslint": "^1.1.1",
+    "gulp-rename": "^1.2.2",
     "jasmine-core": "^2.1.3",
-    "jest-cli": "^0.8.0"
+    "jest-cli": "^0.8.0",
+    "require-dir": "^0.3.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
   },
   "jest": {
     "setupEnvScriptFile": "test/environment.js",
