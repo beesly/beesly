@@ -2,7 +2,7 @@
 
 > Beesly makes interacting with HAL+JSON resources a joyful experience
 
-[![Build Status](https://travis-ci.org/mrkrstphr/beasley.svg?branch=master)](https://travis-ci.org/mrkrstphr/beasley)
+[![Build Status](https://travis-ci.org/mrkrstphr/beesly.svg?branch=master)](https://travis-ci.org/mrkrstphr/beesly)
 
 A modest example:
 
