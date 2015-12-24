@@ -84,7 +84,7 @@ describe('BaseResource', () => {
     });
   });
 
-  describe('static get()', () => {
+  xdescribe('static get()', () => {
     pit('should return a hydrated instance', () => {
       fetch.respondWith({body: {name: 'bob'}});
 
