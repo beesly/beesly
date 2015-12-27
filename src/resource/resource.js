@@ -2,7 +2,7 @@ import Http from '../http/http';
 import Request from '../http/request';
 import uriTemplate from 'uri-templates';
 
-export default class BaseResource {
+class Resource {
   constructor(data) {
     this.internalHalLinks = {};
     this.embeddedConfig = {};
@@ -130,3 +130,5 @@ export default class BaseResource {
 
   }
 }
+
+export default Resource;

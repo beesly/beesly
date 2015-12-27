@@ -1,5 +1,5 @@
 module.exports = {
-  BaseResource: require('./src/resource/base-resource').default,
+  Resource: require('./src/resource/resource').default,
   Http: require('./src/http/http').default,
   Request: require('./src/http/request').default
 };
