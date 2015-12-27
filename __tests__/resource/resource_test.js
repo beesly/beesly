@@ -82,6 +82,14 @@ describe('Resource', () => {
       });
 
     });
+
+    it('should use an optional relationship name', () => {
+      var resource = new Resource();
+      resource.hasOne('home', Resource, 'homeTown');
+      resource.hydrate({_embedded: {home: [{color: 'blue'}]}});
+
+      expect(resource.getEmbedded('homeTown')).toEqual(jasmine.any(Resource));
+    });
   });
 
   xdescribe('static get()', () => {
