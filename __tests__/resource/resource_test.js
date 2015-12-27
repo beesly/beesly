@@ -1,3 +1,7 @@
+// Http is a dependency imported by Resource.
+// Jest autoMock is disabled.
+// Note: do not want it globally mocked (for instance, in the Http tests themselves).
+// how to mock Http just for Resource? vvv
 import Resource from '../../src/resource/resource';
 
 describe('Resource', () => {
