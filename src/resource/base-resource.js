@@ -1,3 +1,5 @@
+import Http from '../http/http';
+import Request from '../http/request';
 import uriTemplate from 'uri-templates';
 
 export default class BaseResource {
@@ -6,13 +8,23 @@ export default class BaseResource {
     this.embeddedConfig = {};
     this.embeddedResources = {};
 
+    this.setup();
+
     if (data) {
       this.hydrate(data);
     }
   }
 
-  hasOne(name, ctor) {
-    var config = {single: true};
+  setup() {
+
+  }
+
+  hasOne(name, ctor, key) {
+    var config = {
+      single: true,
+      name: name,
+      key: key || name
+    };
 
     if (ctor) {
       config.ctor = ctor;
@@ -21,8 +33,12 @@ export default class BaseResource {
     this.embeddedConfig[name] = config;
   }
 
-  hasMany(name, ctor) {
-    var config = {single: false};
+  hasMany(name, ctor, key) {
+    var config = {
+      single: false,
+      name: name,
+      key: key || name
+    };
 
     if (ctor) {
       config.ctor = ctor;
@@ -50,21 +66,24 @@ export default class BaseResource {
           let collection = data[key][embeddedKey];
 
           collection.forEach((embeddedData) => {
-
-            if (!(embeddedKey in this.embeddedResources)) {
-              this.embeddedResources[embeddedKey] = [];
-            }
+            let configuredKey = embeddedKey;
 
             if (embeddedKey in this.embeddedConfig) {
+              configuredKey = this.embeddedConfig[embeddedKey].key;
+
               if (this.embeddedConfig[embeddedKey].single) {
-                this.embeddedResources[embeddedKey] = new this.embeddedConfig[embeddedKey].ctor(embeddedData);
+                this.embeddedResources[configuredKey] = new this.embeddedConfig[embeddedKey].ctor(embeddedData);
                 return;
               } else {
                 embeddedData = new this.embeddedConfig[embeddedKey].ctor(embeddedData);
               }
             }
 
-            this.embeddedResources[embeddedKey].push(embeddedData);
+            if (!(configuredKey in this.embeddedResources)) {
+              this.embeddedResources[configuredKey] = [];
+            }
+
+            this.embeddedResources[configuredKey].push(embeddedData);
           });
         });
 
@@ -85,8 +104,29 @@ export default class BaseResource {
       throw 'Resource url not defined';
     }
 
-    return fetch(uriTemplate(this.url).fill(params)).then((response) => {
-      return new this(response.body);
+    var http = new Http(),
+      url = uriTemplate(this.url).fill(params);
+
+    var request = new Request(url);
+
+    return http.get(request).then((response) => {
+      return new this(response.json);
+
+      // return response.json((result) => {
+      //   return new this(result);
+      // });
     });
+  }
+
+  create() {
+
+  }
+
+  update() {
+
+  }
+
+  delete() {
+
   }
 }
