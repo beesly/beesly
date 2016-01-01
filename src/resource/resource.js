@@ -59,6 +59,7 @@ class Resource {
     }
   }
 
+  // @todo @fixme refactor this mess
   hydrate(data) {
     Object.keys(data).forEach((key) => {
       if (key === '_embedded') {
@@ -73,6 +74,9 @@ class Resource {
 
               if (this.embeddedConfig[embeddedKey].single) {
                 this.embeddedResources[configuredKey] = new this.embeddedConfig[embeddedKey].ctor(embeddedData);
+                this[configuredKey] = () => {
+                  return this.embeddedResources[configuredKey];
+                };
                 return;
               } else {
                 embeddedData = new this.embeddedConfig[embeddedKey].ctor(embeddedData);
@@ -82,6 +86,10 @@ class Resource {
             if (!(configuredKey in this.embeddedResources)) {
               this.embeddedResources[configuredKey] = [];
             }
+
+            this[configuredKey] = () => {
+              return this.embeddedResources[configuredKey];
+            };
 
             this.embeddedResources[configuredKey].push(embeddedData);
           });
@@ -111,10 +119,6 @@ class Resource {
 
     return http.get(request).then((response) => {
       return new this(response.json);
-
-      // return response.json((result) => {
-      //   return new this(result);
-      // });
     });
   }
 
