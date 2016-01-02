@@ -38,7 +38,7 @@ describe('Http', () => {
     });
   });
 
-  describe('get()', () => {
+  describe('send()', () => {
     it('should throw an Error if CORS is not supported', () => {
       let xhr = {send: () => {}, open: () => {}};
       spyOn(window, 'XMLHttpRequest').andReturn(xhr);
@@ -47,7 +47,7 @@ describe('Http', () => {
 
       try {
         let http = new Http();
-        http.get(new Request('/foo', ''));
+        http.send('foo', new Request('/foo', ''));
       } catch (e) {
         exception = e;
       }
@@ -55,16 +55,16 @@ describe('Http', () => {
       expect(exception.message).toBe('CORS is not supported on this platform');
     });
 
-    it('should make an HTTP GET request', () => {
+    it('should make the correct HTTP request', () => {
       let xhr = {send: () => {}, open: () => {}, withCredentials: true};
       spyOn(window, 'XMLHttpRequest').andReturn(xhr);
       spyOn(xhr, 'open');
       spyOn(xhr, 'send');
 
       let http = new Http();
-      http.get(new Request('/foo', ''));
+      http.send('foo', new Request('/foo', ''));
 
-      expect(xhr.open).toHaveBeenCalledWith('GET', '/foo', true);
+      expect(xhr.open).toHaveBeenCalledWith('foo', '/foo', true);
       expect(xhr.send).toHaveBeenCalledWith('');
     });
 
@@ -75,7 +75,7 @@ describe('Http', () => {
       spyOn(xhr, 'send');
 
       let http = new Http();
-      let promise = http.get(new Request('/foo', '')).then((response) => {
+      let promise = http.send('foo', new Request('/foo', '')).then((response) => {
         expect(response).toEqual(jasmine.any(Response));
       });
 
@@ -94,7 +94,7 @@ describe('Http', () => {
       spyOn(xhr, 'send');
 
       let http = new Http();
-      let promise = http.get(new Request('/foo', '')).then((response) => {
+      let promise = http.send('foo', new Request('/foo', '')).then((response) => {
         expect(response.statusCode).toEqual(200);
         expect(response.text).toEqual('foobarrr');
       });
@@ -113,7 +113,7 @@ describe('Http', () => {
       spyOn(xhr, 'send');
 
       let http = new Http();
-      let promise = http.get(new Request('/foo', '')).then(() => {}, (error) => {
+      let promise = http.send('foo', new Request('/foo', '')).then(() => {}, (error) => {
         expect(error.message).toEqual('Received error response with code 500');
       });
 
@@ -130,7 +130,7 @@ describe('Http', () => {
       spyOn(xhr, 'send');
 
       let http = new Http();
-      let promise = http.get(new Request('/foo', '')).then(() => {}, (error) => {
+      let promise = http.send('foo', new Request('/foo', '')).then(() => {}, (error) => {
         expect(error.message).toEqual('Request failed');
       });
 
@@ -151,6 +151,76 @@ describe('Http', () => {
       http.get(request);
 
       expect(xhr.send).toHaveBeenCalledWith('{"foo":"bar"}');
+    });
+  });
+
+  describe('get()', () => {
+    it('should make an HTTP GET request', () => {
+      let xhr = {send: () => {}, open: () => {}, withCredentials: true};
+      spyOn(window, 'XMLHttpRequest').andReturn(xhr);
+      spyOn(xhr, 'open');
+      spyOn(xhr, 'send');
+
+      let http = new Http();
+      http.get(new Request('/foo', ''));
+
+      expect(xhr.open).toHaveBeenCalledWith('GET', '/foo', true);
+    });
+  });
+
+  describe('get()', () => {
+    it('should make an HTTP GET request', () => {
+      let xhr = {send: () => {}, open: () => {}, withCredentials: true};
+      spyOn(window, 'XMLHttpRequest').andReturn(xhr);
+      spyOn(xhr, 'open');
+      spyOn(xhr, 'send');
+
+      let http = new Http();
+      http.post(new Request('/foo', ''));
+
+      expect(xhr.open).toHaveBeenCalledWith('POST', '/foo', true);
+    });
+  });
+
+  describe('put()', () => {
+    it('should make an HTTP GET request', () => {
+      let xhr = {send: () => {}, open: () => {}, withCredentials: true};
+      spyOn(window, 'XMLHttpRequest').andReturn(xhr);
+      spyOn(xhr, 'open');
+      spyOn(xhr, 'send');
+
+      let http = new Http();
+      http.put(new Request('/foo', ''));
+
+      expect(xhr.open).toHaveBeenCalledWith('PUT', '/foo', true);
+    });
+  });
+
+  describe('patch()', () => {
+    it('should make an HTTP GET request', () => {
+      let xhr = {send: () => {}, open: () => {}, withCredentials: true};
+      spyOn(window, 'XMLHttpRequest').andReturn(xhr);
+      spyOn(xhr, 'open');
+      spyOn(xhr, 'send');
+
+      let http = new Http();
+      http.patch(new Request('/foo', ''));
+
+      expect(xhr.open).toHaveBeenCalledWith('PATCH', '/foo', true);
+    });
+  });
+
+  describe('delete()', () => {
+    it('should make an HTTP DELETE request', () => {
+      let xhr = {send: () => {}, open: () => {}, withCredentials: true};
+      spyOn(window, 'XMLHttpRequest').andReturn(xhr);
+      spyOn(xhr, 'open');
+      spyOn(xhr, 'send');
+
+      let http = new Http();
+      http.delete(new Request('/foo', ''));
+
+      expect(xhr.open).toHaveBeenCalledWith('DELETE', '/foo', true);
     });
   });
 

@@ -50,10 +50,10 @@ class Http {
     this.interceptors = [];
   }
 
-  get(request) {
+  send(method, request) {
     Http.interceptRequest(request);
 
-    let xhr = buildXhr('GET', request);
+    let xhr = buildXhr(method, request);
 
     return new Promise((resolve, reject) => {
        xhr.onload = () => {
@@ -69,6 +69,26 @@ class Http {
        xhr.onerror = () => reject(Error('Request failed'));
        xhr.send(stringify(request.data, request.headers));
      });
+  }
+
+  get(request) {
+    return this.send('GET', request);
+  }
+
+  post(request) {
+    return this.send('POST', request);
+  }
+
+  patch(request) {
+    return this.send('PATCH', request);
+  }
+
+  put(request) {
+    return this.send('PUT', request);
+  }
+
+  delete(request) {
+    return this.send('DELETE', request);
   }
 }
 
