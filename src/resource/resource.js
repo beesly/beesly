@@ -2,6 +2,23 @@ import Http from '../http/http';
 import Request from '../http/request';
 import uriTemplate from 'uri-templates';
 
+function buildOptions(name, single, options) {
+  options = options || {};
+
+  options.single = single;
+  options.name = name;
+
+  if (!options.accessor) {
+    options.accessor = name;
+  }
+
+  if (!options.class) {
+    options.class = Resource;
+  }
+
+  return options;
+}
+
 class Resource {
   constructor(data) {
     this.internalHalLinks = {};
@@ -19,32 +36,12 @@ class Resource {
 
   }
 
-  hasOne(name, ctor, key) {
-    var config = {
-      single: true,
-      name: name,
-      key: key || name
-    };
-
-    if (ctor) {
-      config.ctor = ctor;
-    }
-
-    this.embeddedConfig[name] = config;
+  hasOne(name, options) {
+    this.embeddedConfig[name] = buildOptions(name, true, options);
   }
 
-  hasMany(name, ctor, key) {
-    var config = {
-      single: false,
-      name: name,
-      key: key || name
-    };
-
-    if (ctor) {
-      config.ctor = ctor;
-    }
-
-    this.embeddedConfig[name] = config;
+  hasMany(name, options) {
+    this.embeddedConfig[name] = buildOptions(name, false, options);
   }
 
   getLink(name) {
@@ -70,16 +67,16 @@ class Resource {
             let configuredKey = embeddedKey;
 
             if (embeddedKey in this.embeddedConfig) {
-              configuredKey = this.embeddedConfig[embeddedKey].key;
+              configuredKey = this.embeddedConfig[embeddedKey].accessor;
 
               if (this.embeddedConfig[embeddedKey].single) {
-                this.embeddedResources[configuredKey] = new this.embeddedConfig[embeddedKey].ctor(embeddedData);
+                this.embeddedResources[configuredKey] = new this.embeddedConfig[embeddedKey].class(embeddedData);
                 this[configuredKey] = () => {
                   return this.embeddedResources[configuredKey];
                 };
                 return;
               } else {
-                embeddedData = new this.embeddedConfig[embeddedKey].ctor(embeddedData);
+                embeddedData = new this.embeddedConfig[embeddedKey].class(embeddedData);
               }
             }
 

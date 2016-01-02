@@ -12,18 +12,18 @@ import {Customer, LineItem} from './resources';
 
 export class Order extends BaseResource {
   setup() {
-    this.hasOne('customer', Customer);
-    this.hasMany('line_item', LineItem);
+    this.hasOne('customer', {class: Customer});
+    this.hasMany('line_item', {class: LineItem, accessor: 'lineItems'});
   }
 }
 ```
 
 ```js
-import Order from './order-resource';
+import Order from './resources';
 
 var order = Order.get({id: 1000});
 
-order.lineItems.forEach((item) => {
-  console.log(`${item.product.name}, ${item.quantity} units`);
+order.lineItems().forEach((item) => {
+  console.log(`${item.product().name}, ${item.quantity} units`);
 })
 ```

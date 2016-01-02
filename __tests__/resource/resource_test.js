@@ -67,7 +67,7 @@ describe('Resource', () => {
 
     it('should return a single, hydrated resource when configured', () => {
       var resource = new Resource();
-      resource.hasOne('home', Resource);
+      resource.hasOne('home', {class: Resource});
       resource.hydrate({_embedded: {home: [{color: 'blue'}]}});
 
       expect(resource.getEmbedded('home')).toEqual(jasmine.any(Resource));
@@ -75,7 +75,7 @@ describe('Resource', () => {
 
     it('should return a collection of hydrated resources when configured', () => {
       var resource = new Resource();
-      resource.hasMany('homies', Resource);
+      resource.hasMany('homies', {class: Resource});
       resource.hydrate({_embedded: {homies: [{name: 'Clark'}, {name: 'Pineapple Face'}]}});
 
       expect(resource.getEmbedded('homies')).toEqual(jasmine.any(Array));
@@ -89,7 +89,7 @@ describe('Resource', () => {
 
     it('should use an optional relationship name', () => {
       var resource = new Resource();
-      resource.hasOne('home', Resource, 'homeTown');
+      resource.hasOne('home', {class: Resource, accessor: 'homeTown'});
       resource.hydrate({_embedded: {home: [{color: 'blue'}]}});
 
       expect(resource.getEmbedded('homeTown')).toEqual(jasmine.any(Resource));
