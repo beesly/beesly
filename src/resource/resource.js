@@ -110,12 +110,9 @@ class Resource {
       throw 'Resource url not defined';
     }
 
-    var http = new Http(),
-      url = uriTemplate(this.url).fill(params);
+    const request = new Request(uriTemplate(this.url).fill(params));
 
-    var request = new Request(url);
-
-    return http.get(request).then((response) => {
+    return new Http().get(request).then((response) => {
       return new this(response.json);
     });
   }

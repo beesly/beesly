@@ -1,8 +1,8 @@
-// Http is a dependency imported by Resource.
-// Jest autoMock is disabled.
-// Note: do not want it globally mocked (for instance, in the Http tests themselves).
-// how to mock Http just for Resource? vvv
-import Resource from '../../src/resource/resource';
+const Http = require('../../src/http/http').default;
+Http.prototype.get = jest.genMockFn();
+
+const Resource = require('../../src/resource/resource').default;
+const Response = require('../../src/http/response').default;
 
 describe('Resource', () => {
   describe('hydrate()', () => {
@@ -85,12 +85,17 @@ describe('Resource', () => {
     });
   });
 
-  xdescribe('static get()', () => {
+  describe('static get()', () => {
     pit('should return a hydrated instance', () => {
       Resource.url = 'http://foo.com/{id}';
 
+      let promise = new Promise((resolve, reject) => {
+        resolve(new Response(200, '{"name": "bob"}'))
+      });
+
+      Http.prototype.get.mockReturnValueOnce(promise);
+
       return Resource.get({id: 5}).then((resource) => {
-        expect(fetch.lastUrl).toEqual('http://foo.com/5');
         expect(resource).toEqual(jasmine.any(Resource));
         expect(resource.name).toBe('bob');
       });
