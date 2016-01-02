@@ -90,14 +90,16 @@ class Resource {
 
   hydrateSingleEmbeddedResource(data, config) {
     this.embeddedResources[config.accessor] = new config.class(data);
-    this[config.accessor] = () => {
-      return this.embeddedResources[config.accessor];
-    };
+    this.createEmbeddedAccesor(config);
   }
 
   hydrateOneToManyEmbeddedResource(data, config) {
     let resource = new config.class(data);
     this.embeddedResources[config.accessor].push(resource);
+    this.createEmbeddedAccesor(config);
+  }
+
+  createEmbeddedAccesor(config) {
     this[config.accessor] = () => {
       return this.embeddedResources[config.accessor];
     };
