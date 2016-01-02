@@ -1,5 +1,6 @@
 const Http = require('../../src/http/http').default;
 Http.prototype.get = jest.genMockFn();
+Http.prototype.post = jest.genMockFn();
 
 const Resource = require('../../src/resource/resource').default;
 const Response = require('../../src/http/response').default;
@@ -97,6 +98,24 @@ describe('Resource', () => {
 
       return Resource.get({id: 5}).then((resource) => {
         expect(resource).toEqual(jasmine.any(Resource));
+        expect(resource.name).toBe('bob');
+      });
+    });
+  });
+
+  describe('static create()', () => {
+    pit('should post to the resource URL and return a hydrated instance', () => {
+      Resource.url = 'http://foo.com/resource';
+
+      let promise = new Promise((resolve, reject) => {
+        resolve(new Response(201, '{"id": 200, "name": "bob"}'))
+      });
+
+      Http.prototype.post.mockReturnValueOnce(promise);
+
+      return Resource.create({name: 'bob'}).then((resource) => {
+        expect(resource).toEqual(jasmine.any(Resource));
+        expect(resource.id).toBe(200);
         expect(resource.name).toBe('bob');
       });
     });

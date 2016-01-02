@@ -117,8 +117,16 @@ class Resource {
     });
   }
 
-  create() {
+  static create(data, params) {
+    if (!this.url) {
+      throw 'Resource url not defined';
+    }
 
+    const request = new Request(uriTemplate(this.url).fill(params), data);
+
+    return new Http().post(request).then((response) => {
+      return new this(response.json);
+    });
   }
 
   update() {
