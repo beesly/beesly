@@ -50,27 +50,13 @@ describe('Resource', () => {
     });
   });
 
-  describe('getEmbedded()', () => {
-    it('should retrieve the resource by name', () => {
-      var resource = new Resource(),
-        embedded = {something: [{id: 100}]};
-
-      resource.hydrate({_embedded: embedded});
-
-      expect(resource.getEmbedded('something')).toEqual(embedded.something);
-    });
-
-    it('should return undefined if the resources does not exist', () => {
-      var resource = new Resource();
-      expect(resource.getEmbedded('something')).toBeUndefined();
-    });
-
+  describe('embedded retrieval', () => {
     it('should return a single, hydrated resource when configured', () => {
       var resource = new Resource();
       resource.hasOne('home', {class: Resource});
       resource.hydrate({_embedded: {home: [{color: 'blue'}]}});
 
-      expect(resource.getEmbedded('home')).toEqual(jasmine.any(Resource));
+      expect(resource.home()).toEqual(jasmine.any(Resource));
     });
 
     it('should return a collection of hydrated resources when configured', () => {
@@ -78,10 +64,10 @@ describe('Resource', () => {
       resource.hasMany('homies', {class: Resource});
       resource.hydrate({_embedded: {homies: [{name: 'Clark'}, {name: 'Pineapple Face'}]}});
 
-      expect(resource.getEmbedded('homies')).toEqual(jasmine.any(Array));
-      expect(resource.getEmbedded('homies').length).toBe(2);
+      expect(resource.homies()).toEqual(jasmine.any(Array));
+      expect(resource.homies().length).toBe(2);
 
-      resource.getEmbedded('homies').forEach((homie) => {
+      resource.homies().forEach((homie) => {
         expect(homie).toEqual(jasmine.any(Resource));
       });
 
@@ -92,7 +78,7 @@ describe('Resource', () => {
       resource.hasOne('home', {class: Resource, accessor: 'homeTown'});
       resource.hydrate({_embedded: {home: [{color: 'blue'}]}});
 
-      expect(resource.getEmbedded('homeTown')).toEqual(jasmine.any(Resource));
+      expect(resource.homeTown()).toEqual(jasmine.any(Resource));
     });
   });
 

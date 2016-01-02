@@ -50,12 +50,6 @@ class Resource {
     }
   }
 
-  getEmbedded(name) {
-    if (name in this.embeddedResources) {
-      return this.embeddedResources[name];
-    }
-  }
-
   // @todo @fixme refactor this mess
   hydrate(data) {
     Object.keys(data).forEach((key) => {
