@@ -50,51 +50,53 @@ class Resource {
     }
   }
 
-  // @todo @fixme refactor this mess
   hydrate(data) {
     Object.keys(data).forEach((key) => {
-      if (key === '_embedded') {
-        Object.keys(data[key]).forEach((embeddedKey) => {
-          let collection = data[key][embeddedKey];
+      switch (key.toLowerCase()) {
+        case '_embedded':
+          this.hydrateEmbeddedResource(data[key]);
+          break;
+        case '_links':
+          this.internalHalLinks = data[key];
+          break;
+        default:
+          this[key] = data[key];
+      }
+    });
+  }
 
-          collection.forEach((embeddedData) => {
-            let configuredKey = embeddedKey;
+  // @todo @fixme refactor this mess
+  hydrateEmbeddedResource(data) {
+    Object.keys(data).forEach((embeddedKey) => {
+      let collection = data[embeddedKey];
 
-            if (embeddedKey in this.embeddedConfig) {
-              configuredKey = this.embeddedConfig[embeddedKey].accessor;
+      collection.forEach((embeddedData) => {
+        let configuredKey = embeddedKey;
 
-              if (this.embeddedConfig[embeddedKey].single) {
-                this.embeddedResources[configuredKey] = new this.embeddedConfig[embeddedKey].class(embeddedData);
-                this[configuredKey] = () => {
-                  return this.embeddedResources[configuredKey];
-                };
-                return;
-              } else {
-                embeddedData = new this.embeddedConfig[embeddedKey].class(embeddedData);
-              }
-            }
+        if (embeddedKey in this.embeddedConfig) {
+          configuredKey = this.embeddedConfig[embeddedKey].accessor;
 
-            if (!(configuredKey in this.embeddedResources)) {
-              this.embeddedResources[configuredKey] = [];
-            }
-
+          if (this.embeddedConfig[embeddedKey].single) {
+            this.embeddedResources[configuredKey] = new this.embeddedConfig[embeddedKey].class(embeddedData);
             this[configuredKey] = () => {
               return this.embeddedResources[configuredKey];
             };
+            return;
+          } else {
+            embeddedData = new this.embeddedConfig[embeddedKey].class(embeddedData);
+          }
+        }
 
-            this.embeddedResources[configuredKey].push(embeddedData);
-          });
-        });
+        if (!(configuredKey in this.embeddedResources)) {
+          this.embeddedResources[configuredKey] = [];
+        }
 
-        return;
-      }
+        this[configuredKey] = () => {
+          return this.embeddedResources[configuredKey];
+        };
 
-      if (key === '_links') {
-        this.internalHalLinks = data[key];
-        return;
-      }
-
-      this[key] = data[key];
+        this.embeddedResources[configuredKey].push(embeddedData);
+      });
     });
   }
 
