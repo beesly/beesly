@@ -65,39 +65,42 @@ class Resource {
     });
   }
 
-  // @todo @fixme refactor this mess
-  hydrateEmbeddedResource(data) {
-    Object.keys(data).forEach((embeddedKey) => {
-      let collection = data[embeddedKey];
+  hydrateEmbeddedResource(collections) {
+    Object.keys(collections).forEach((key) => {
+      let collection = collections[key];
+      let config = null;
 
-      collection.forEach((embeddedData) => {
-        let configuredKey = embeddedKey;
+      if (key in this.embeddedConfig) {
+        config = this.embeddedConfig[key];
+      } else {
+        config = buildOptions(key, false);
+      }
 
-        if (embeddedKey in this.embeddedConfig) {
-          configuredKey = this.embeddedConfig[embeddedKey].accessor;
+      this.embeddedResources[config.accessor] = [];
 
-          if (this.embeddedConfig[embeddedKey].single) {
-            this.embeddedResources[configuredKey] = new this.embeddedConfig[embeddedKey].class(embeddedData);
-            this[configuredKey] = () => {
-              return this.embeddedResources[configuredKey];
-            };
-            return;
-          } else {
-            embeddedData = new this.embeddedConfig[embeddedKey].class(embeddedData);
-          }
+      collection.forEach((data) => {
+        if (config.single) {
+          this.hydrateSingleEmbeddedResource(data, config);
+        } else {
+          this.hydrateOneToManyEmbeddedResource(data, config);
         }
-
-        if (!(configuredKey in this.embeddedResources)) {
-          this.embeddedResources[configuredKey] = [];
-        }
-
-        this[configuredKey] = () => {
-          return this.embeddedResources[configuredKey];
-        };
-
-        this.embeddedResources[configuredKey].push(embeddedData);
       });
     });
+  }
+
+  hydrateSingleEmbeddedResource(data, config) {
+    this.embeddedResources[config.accessor] = new config.class(data);
+    this[config.accessor] = () => {
+      return this.embeddedResources[config.accessor];
+    };
+  }
+
+  hydrateOneToManyEmbeddedResource(data, config) {
+    let resource = new config.class(data);
+    this.embeddedResources[config.accessor].push(resource);
+    this[config.accessor] = () => {
+      return this.embeddedResources[config.accessor];
+    };
   }
 
   static get(params) {

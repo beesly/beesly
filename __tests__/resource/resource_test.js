@@ -20,7 +20,10 @@ describe('Resource', () => {
       resource.hydrate({_embedded: embedded});
 
       expect(resource._embedded).toBeUndefined();
-      expect(resource.embeddedResources).toEqual(embedded);
+      expect(Object.keys(resource.embeddedResources)).toContain('colors');
+      expect(resource.embeddedResources.colors.length).toEqual(1);
+      expect(resource.embeddedResources.colors[0]).toEqual(jasmine.any(Resource));
+      expect(resource.embeddedResources.colors[0].name).toBe('red');
     });
 
     it('should hydrate links', () => {
