@@ -1,6 +1,10 @@
 const Http = require('../../src/http/http').default;
+
 Http.prototype.get = jest.genMockFn();
 Http.prototype.post = jest.genMockFn();
+Http.prototype.patch = jest.genMockFn();
+Http.prototype.put = jest.genMockFn();
+Http.prototype.delete = jest.genMockFn();
 
 const Resource = require('../../src/resource/resource').default;
 const Response = require('../../src/http/response').default;
@@ -86,6 +90,63 @@ describe('Resource', () => {
     });
   });
 
+  describe('update()', () => {
+    it('should patch the data', () => {
+      Resource.url = 'http://foo.com/{id}';
+
+      let promise = new Promise((resolve, reject) => {
+        resolve(new Response(200, '{"name": "Jim"}'))
+      });
+
+      Http.prototype.patch.mockReturnValueOnce(promise);
+
+      let resource = new Resource({id: 1000, name: 'Jim'});
+      resource.update();
+
+      let request = Http.prototype.patch.mock.calls[0][0];
+      expect(request.url).toEqual('http://foo.com/1000');
+      expect(request.data).toEqual('{"id":1000,"name":"Jim"}');
+    });
+  });
+
+  describe('replace()', () => {
+    it('should put the data', () => {
+      Resource.url = 'http://foo.com/{id}';
+
+      let promise = new Promise((resolve, reject) => {
+        resolve(new Response(200, '{"id": 1000, "name": "Jim"}'))
+      });
+
+      Http.prototype.put.mockReturnValueOnce(promise);
+
+      let resource = new Resource({id: 1000, name: 'Jim'});
+      resource.replace();
+
+      let request = Http.prototype.put.mock.calls[0][0];
+      expect(request.url).toEqual('http://foo.com/1000');
+      expect(request.data).toEqual('{"id":1000,"name":"Jim"}');
+    });
+  });
+
+  describe('delete()', () => {
+    it('should put the data', () => {
+      Resource.url = 'http://foo.com/{id}';
+
+      let promise = new Promise((resolve, reject) => {
+        resolve(new Response(204))
+      });
+
+      Http.prototype.delete.mockReturnValueOnce(promise);
+
+      let resource = new Resource({id: 1000, name: 'Jim'});
+      resource.delete();
+
+      let request = Http.prototype.delete.mock.calls[0][0];
+      expect(request.url).toEqual('http://foo.com/1000');
+      expect(request.data).toBeUndefined();
+    });
+  });
+
   describe('static get()', () => {
     pit('should return a hydrated instance', () => {
       Resource.url = 'http://foo.com/{id}';
@@ -113,11 +174,17 @@ describe('Resource', () => {
 
       Http.prototype.post.mockReturnValueOnce(promise);
 
-      return Resource.create({name: 'bob'}).then((resource) => {
+      let responsePromise = Resource.create({name: 'bob'}).then((resource) => {
         expect(resource).toEqual(jasmine.any(Resource));
         expect(resource.id).toBe(200);
         expect(resource.name).toBe('bob');
       });
+
+      let request = Http.prototype.post.mock.calls[0][0];
+      expect(request.url).toEqual('http://foo.com/resource');
+      expect(request.data).toEqual('{"name":"bob"}');
+
+      return responsePromise;
     });
   });
 });

@@ -2,6 +2,20 @@ import Http from '../http/http';
 import Request from '../http/request';
 import uriTemplate from 'uri-templates';
 
+function buildCleanResource(resource) {
+  let serialized = {};
+
+  Object.keys(resource).forEach((key) => {
+    if (key === 'internalHalLinks' || key === 'embeddedConfig' || key === 'embeddedResources') {
+      return;
+    }
+
+    serialized[key] = resource[key];
+  });
+
+  return serialized;
+}
+
 function buildOptions(name, single, options) {
   options = options || {};
 
@@ -122,7 +136,8 @@ class Resource {
       throw 'Resource url not defined';
     }
 
-    const request = new Request(uriTemplate(this.url).fill(params), data);
+    const resource = buildCleanResource(data);
+    const request = new Request(uriTemplate(this.url).fill(params), JSON.stringify(resource));
 
     return new Http().post(request).then((response) => {
       return new this(response.json);
@@ -130,11 +145,41 @@ class Resource {
   }
 
   update() {
+    if (!this.constructor.url) {
+      throw 'Resource url not defined';
+    }
 
+    const data = buildCleanResource(this);
+    const request = new Request(uriTemplate(this.constructor.url).fill(data), JSON.stringify(data));
+
+    return new Http().patch(request).then((response) => {
+      return new this(response.json);
+    });
+  }
+
+  replace() {
+    if (!this.constructor.url) {
+      throw 'Resource url not defined';
+    }
+
+    const data = buildCleanResource(this);
+    const request = new Request(uriTemplate(this.constructor.url).fill(data), JSON.stringify(data));
+
+    return new Http().put(request).then((response) => {
+      return new this(response.json);
+    });
   }
 
   delete() {
+    if (!this.constructor.url) {
+      throw 'Resource url not defined';
+    }
 
+    const request = new Request(uriTemplate(this.constructor.url).fill(this));
+
+    return new Http().delete(request).then((response) => {
+      return new this(response.json);
+    });
   }
 }
 
