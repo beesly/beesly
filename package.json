@@ -37,6 +37,7 @@
     "scriptPreprocessor": "node_modules/babel-jest"
   },
   "dependencies": {
+    "babel-register": "^6.3.13",
     "uri-templates": "^0.1.9"
   }
 }
