@@ -1,4 +1,4 @@
-require("babel-register");
+require('babel-register');
 
 module.exports = {
   Resource: require('./src/resource/resource').default,
