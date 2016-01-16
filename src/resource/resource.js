@@ -1,5 +1,6 @@
 import Http from '../http/http';
 import Request from '../http/request';
+import ResourceCollection from './resource-collection';
 import uriTemplate from 'uri-templates';
 
 function buildCleanResource(resource) {
@@ -31,6 +32,18 @@ function buildOptions(name, single, options) {
   }
 
   return options;
+}
+
+function buildUri(base, params) {
+  params = params || {};
+
+  let url = uriTemplate(base).fill(params);
+
+  if (url.substr(url.length - 1) === '/') {
+    url = url.substr(0, url.length -1);
+  }
+
+  return url;
 }
 
 class Resource {
@@ -124,10 +137,22 @@ class Resource {
       throw 'Resource url not defined';
     }
 
-    const request = new Request(uriTemplate(this.url).fill(params));
+    const request = new Request(buildUri(this.url, params));
 
     return new Http().get(request).then((response) => {
       return new this(response.json);
+    });
+  }
+
+  static getCollection(params) {
+    if (!this.url) {
+      throw 'Resource url not defined';
+    }
+
+    const request = new Request(buildUri(this.url, params));
+
+    return new Http().get(request).then((response) => {
+      return new ResourceCollection(this.collectionKey, this, response.json);
     });
   }
 
@@ -137,7 +162,7 @@ class Resource {
     }
 
     const resource = buildCleanResource(data);
-    const request = new Request(uriTemplate(this.url).fill(params), JSON.stringify(resource));
+    const request = new Request(buildUri(this.url, params), JSON.stringify(resource));
 
     return new Http().post(request).then((response) => {
       return new this(response.json);
@@ -150,7 +175,7 @@ class Resource {
     }
 
     const data = buildCleanResource(this);
-    const request = new Request(uriTemplate(this.constructor.url).fill(data), JSON.stringify(data));
+    const request = new Request(buildUri(this.constructor.url, data), JSON.stringify(data));
 
     return new Http().patch(request).then((response) => {
       return new this(response.json);
@@ -163,7 +188,7 @@ class Resource {
     }
 
     const data = buildCleanResource(this);
-    const request = new Request(uriTemplate(this.constructor.url).fill(data), JSON.stringify(data));
+    const request = new Request(buildUri(this.constructor.url, data), JSON.stringify(data));
 
     return new Http().put(request).then((response) => {
       return new this(response.json);
@@ -175,7 +200,7 @@ class Resource {
       throw 'Resource url not defined';
     }
 
-    const request = new Request(uriTemplate(this.constructor.url).fill(this));
+    const request = new Request(buildUri(this.constructor.url, this));
 
     return new Http().delete(request).then((response) => {
       return new this(response.json);

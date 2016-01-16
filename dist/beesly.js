@@ -97,7 +97,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _request2 = _interopRequireDefault(_request);
 
-	var _uriTemplates = __webpack_require__(6);
+	var _resourceCollection = __webpack_require__(6);
+
+	var _resourceCollection2 = _interopRequireDefault(_resourceCollection);
+
+	var _uriTemplates = __webpack_require__(7);
 
 	var _uriTemplates2 = _interopRequireDefault(_uriTemplates);
 
@@ -134,6 +138,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  return options;
+	}
+
+	function buildUri(base, params) {
+	  params = params || {};
+
+	  var url = (0, _uriTemplates2.default)(base).fill(params);
+
+	  if (url.substr(url.length - 1) === '/') {
+	    url = url.substr(0, url.length - 1);
+	  }
+
+	  return url;
 	}
 
 	var Resource = function () {
@@ -247,7 +263,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 
 	      var data = buildCleanResource(this);
-	      var request = new _request2.default((0, _uriTemplates2.default)(this.constructor.url).fill(data), JSON.stringify(data));
+	      var request = new _request2.default(buildUri(this.constructor.url, data), JSON.stringify(data));
 
 	      return new _http2.default().patch(request).then(function (response) {
 	        return new _this4(response.json);
@@ -263,7 +279,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 
 	      var data = buildCleanResource(this);
-	      var request = new _request2.default((0, _uriTemplates2.default)(this.constructor.url).fill(data), JSON.stringify(data));
+	      var request = new _request2.default(buildUri(this.constructor.url, data), JSON.stringify(data));
 
 	      return new _http2.default().put(request).then(function (response) {
 	        return new _this5(response.json);
@@ -278,7 +294,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        throw 'Resource url not defined';
 	      }
 
-	      var request = new _request2.default((0, _uriTemplates2.default)(this.constructor.url).fill(this));
+	      var request = new _request2.default(buildUri(this.constructor.url, this));
 
 	      return new _http2.default().delete(request).then(function (response) {
 	        return new _this6(response.json);
@@ -293,26 +309,41 @@ return /******/ (function(modules) { // webpackBootstrap
 	        throw 'Resource url not defined';
 	      }
 
-	      var request = new _request2.default((0, _uriTemplates2.default)(this.url).fill(params));
+	      var request = new _request2.default(buildUri(this.url, params));
 
 	      return new _http2.default().get(request).then(function (response) {
 	        return new _this7(response.json);
 	      });
 	    }
 	  }, {
-	    key: 'create',
-	    value: function create(data, params) {
+	    key: 'getCollection',
+	    value: function getCollection(params) {
 	      var _this8 = this;
 
 	      if (!this.url) {
 	        throw 'Resource url not defined';
 	      }
 
+	      var request = new _request2.default(buildUri(this.url, params));
+
+	      return new _http2.default().get(request).then(function (response) {
+	        return new _resourceCollection2.default(_this8.collectionKey, _this8, response.json);
+	      });
+	    }
+	  }, {
+	    key: 'create',
+	    value: function create(data, params) {
+	      var _this9 = this;
+
+	      if (!this.url) {
+	        throw 'Resource url not defined';
+	      }
+
 	      var resource = buildCleanResource(data);
-	      var request = new _request2.default((0, _uriTemplates2.default)(this.url).fill(params), JSON.stringify(resource));
+	      var request = new _request2.default(buildUri(this.url, params), JSON.stringify(resource));
 
 	      return new _http2.default().post(request).then(function (response) {
-	        return new _this8(response.json);
+	        return new _this9(response.json);
 	      });
 	    }
 	  }]);
@@ -568,6 +599,45 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 6 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var ResourceCollection = function () {
+	  function ResourceCollection(key, ctor, data) {
+	    _classCallCheck(this, ResourceCollection);
+
+	    this.key = key;
+	    this.ctor = ctor;
+	    this.data = data;
+	  }
+
+	  _createClass(ResourceCollection, [{
+	    key: "items",
+	    get: function get() {
+	      var _this = this;
+
+	      return this.data._embedded[this.key].map(function (item) {
+	        return new _this.ctor(item);
+	      });
+	    }
+	  }]);
+
+	  return ResourceCollection;
+	}();
+
+	exports.default = ResourceCollection;
+
+/***/ },
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (global, factory) {
