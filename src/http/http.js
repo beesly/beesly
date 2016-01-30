@@ -33,6 +33,18 @@ function buildXhr(method, request) {
   return xhr;
 }
 
+function parseHeaders(headerString) {
+  let headerRows = headerString.trim().split('\r\n');
+  let headers = {};
+
+  headerRows.forEach((header) => {
+    let values = header.split(':', 2);
+    headers[values[0].trim()] = values[1].trim();
+  });
+
+  return headers;
+}
+
 class Http {
   static addIntercept(cb) {
     this.interceptors.push(cb);
@@ -50,6 +62,14 @@ class Http {
     this.interceptors = [];
   }
 
+  constructor() {
+    this.get = this.get.bind(this);
+    this.post = this.post.bind(this);
+    this.patch = this.patch.bind(this);
+    this.put = this.put.bind(this);
+    this.delete = this.delete.bind(this);
+  }
+
   send(method, request) {
     Http.interceptRequest(request);
 
@@ -57,13 +77,15 @@ class Http {
 
     return new Promise((resolve, reject) => {
        xhr.onload = () => {
-         let response = xhr.responseText;
+         let responseText = xhr.responseText;
+
+         let response = new Response(xhr.status, responseText, parseHeaders(xhr.getAllResponseHeaders()));
 
          if (xhr.status >= 200 && xhr.status < 400) {
-           resolve(new Response(xhr.status, response));
-           return;
+           resolve(response);
+         } else {
+           reject(response);
          }
-         reject(Error(`Received error response with code ${xhr.status}`), response);
        };
 
        xhr.onerror = () => reject(Error('Request failed'));
