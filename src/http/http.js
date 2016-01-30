@@ -34,9 +34,13 @@ function buildXhr(method, request) {
 }
 
 function parseHeaders(headerString) {
-  let headerRows = headerString.trim().split('\r\n');
   let headers = {};
 
+  if (!headerString) {
+    return headers;
+  }
+
+  let headerRows = headerString.trim().split('\r\n');
   headerRows.forEach((header) => {
     let values = header.split(':', 2);
     headers[values[0].trim()] = values[1].trim();
@@ -77,9 +81,11 @@ class Http {
 
     return new Promise((resolve, reject) => {
        xhr.onload = () => {
-         let responseText = xhr.responseText;
-
-         let response = new Response(xhr.status, responseText, parseHeaders(xhr.getAllResponseHeaders()));
+         let response = new Response(
+           xhr.status,
+           xhr.responseText,
+           parseHeaders(xhr.getAllResponseHeaders())
+         );
 
          if (xhr.status >= 200 && xhr.status < 400) {
            resolve(response);
