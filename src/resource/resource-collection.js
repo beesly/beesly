@@ -7,8 +7,8 @@ class ResourceCollection {
 
   get items() {
     return this.data._embedded[this.key].map((item) => {
-      return new this.ctor(item);
-    })
+      return new this.ctor(item); // eslint-disable-line new-cap
+    });
   }
 }
 

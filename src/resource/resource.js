@@ -4,7 +4,7 @@ import ResourceCollection from './resource-collection';
 import uriTemplate from 'uri-templates';
 
 function buildCleanResource(resource) {
-  let serialized = {};
+  const serialized = {};
 
   Object.keys(resource).forEach((key) => {
     if (key === 'internalHalLinks' || key === 'embeddedConfig' || key === 'embeddedResources') {
@@ -18,29 +18,29 @@ function buildCleanResource(resource) {
 }
 
 function buildOptions(name, single, options) {
-  options = options || {};
+  const config = options || {};
 
-  options.single = single;
-  options.name = name;
+  config.single = single;
+  config.name = name;
 
-  if (!options.accessor) {
-    options.accessor = name;
+  if (!config.accessor) {
+    config.accessor = name;
   }
 
-  if (!options.class) {
-    options.class = Resource;
+  if (!config.class) {
+    config.class = Resource; // eslint-disable-line no-use-before-define
   }
 
-  return options;
+  return config;
 }
 
 function buildUri(base, params) {
-  params = params || {};
+  const urlParams = params || {};
 
-  let url = uriTemplate(base).fill(params);
+  let url = uriTemplate(base).fill(urlParams);
 
   if (url.substr(url.length - 1) === '/') {
-    url = url.substr(0, url.length -1);
+    url = url.substr(0, url.length - 1);
   }
 
   return url;
@@ -94,7 +94,7 @@ class Resource {
 
   hydrateEmbeddedResource(collections) {
     Object.keys(collections).forEach((key) => {
-      let collection = collections[key];
+      const collection = collections[key];
       let config = null;
 
       if (key in this.embeddedConfig) {
@@ -116,12 +116,12 @@ class Resource {
   }
 
   hydrateSingleEmbeddedResource(data, config) {
-    this.embeddedResources[config.accessor] = new config.class(data);
+    this.embeddedResources[config.accessor] = new config.class(data); // eslint-disable-line new-cap
     this.createEmbeddedAccesor(config);
   }
 
   hydrateOneToManyEmbeddedResource(data, config) {
-    let resource = new config.class(data);
+    const resource = new config.class(data); // eslint-disable-line new-cap
     this.embeddedResources[config.accessor].push(resource);
     this.createEmbeddedAccesor(config);
   }
@@ -135,7 +135,7 @@ class Resource {
   static makeHttpRequest(method, request, className) {
     return new Promise((resolve, reject) => {
       return method(request).then((response) => {
-        resolve(new className(response.json));
+        resolve(new className(response.json)); // eslint-disable-line new-cap
       }).catch((error) => {
         reject(error);
       });
@@ -144,7 +144,7 @@ class Resource {
 
   static get(params) {
     if (!this.url) {
-      throw 'Resource url not defined';
+      throw new Error('Resource url not defined');
     }
 
     const request = new Request(buildUri(this.url, params));
@@ -153,7 +153,7 @@ class Resource {
 
   static getCollection(params) {
     if (!this.url) {
-      throw 'Resource url not defined';
+      throw new Error('Resource url not defined');
     }
 
     const request = new Request(buildUri(this.url, params));
@@ -165,7 +165,7 @@ class Resource {
 
   static create(data, params) {
     if (!this.url) {
-      throw 'Resource url not defined';
+      throw new Error('Resource url not defined');
     }
 
     let url = this.url;
@@ -183,7 +183,7 @@ class Resource {
 
   update() {
     if (!this.constructor.url) {
-      throw 'Resource url not defined';
+      throw new Error('Resource url not defined');
     }
 
     const data = buildCleanResource(this);
@@ -195,7 +195,7 @@ class Resource {
 
   replace() {
     if (!this.constructor.url) {
-      throw 'Resource url not defined';
+      throw new Error('Resource url not defined');
     }
 
     const data = buildCleanResource(this);
@@ -207,7 +207,7 @@ class Resource {
 
   delete() {
     if (!this.constructor.url) {
-      throw 'Resource url not defined';
+      throw new Error('Resource url not defined');
     }
 
     const request = new Request(buildUri(this.constructor.url, this));

@@ -10,15 +10,15 @@ function stringify(data, headers) {
   }
 
   let str = '';
-  for (let key of Object.keys(data)) {
-    str += `${key}=${encodeURIComponent(data[key])}&`
+  for (const key of Object.keys(data)) {
+    str += `${key}=${encodeURIComponent(data[key])}&`;
   }
 
   return str.slice(0, -1);
 }
 
 function buildXhr(method, request) {
-  let xhr = new XMLHttpRequest();
+  const xhr = new XMLHttpRequest();
 
   if ('withCredentials' in xhr) {
     xhr.open(method, request.url, true);
@@ -26,7 +26,7 @@ function buildXhr(method, request) {
     throw new Error('CORS is not supported on this platform');
   }
 
-  for (let key of Object.keys(request.headers)) {
+  for (const key of Object.keys(request.headers)) {
     xhr.setRequestHeader(key, request.headers[key]);
   }
 
@@ -34,15 +34,15 @@ function buildXhr(method, request) {
 }
 
 function parseHeaders(headerString) {
-  let headers = {};
+  const headers = {};
 
   if (!headerString) {
     return headers;
   }
 
-  let headerRows = headerString.trim().split('\r\n');
+  const headerRows = headerString.trim().split('\r\n');
   headerRows.forEach((header) => {
-    let values = header.split(':', 2);
+    const values = header.split(':', 2);
     headers[values[0].trim()] = values[1].trim();
   });
 
@@ -55,9 +55,7 @@ class Http {
   }
 
   static interceptRequest(request) {
-    Http.interceptors.forEach(function (interceptor) {
-      interceptor.call(null, request);
-    });
+    Http.interceptors.forEach(interceptor => interceptor.call(null, request));
 
     return request;
   }
@@ -77,26 +75,26 @@ class Http {
   send(method, request) {
     Http.interceptRequest(request);
 
-    let xhr = buildXhr(method, request);
+    const xhr = buildXhr(method, request);
 
     return new Promise((resolve, reject) => {
-       xhr.onload = () => {
-         let response = new Response(
-           xhr.status,
-           xhr.responseText,
-           parseHeaders(xhr.getAllResponseHeaders())
-         );
+      xhr.onload = () => {
+        const response = new Response(
+          xhr.status,
+          xhr.responseText,
+          parseHeaders(xhr.getAllResponseHeaders())
+        );
 
-         if (xhr.status >= 200 && xhr.status < 400) {
-           resolve(response);
-         } else {
-           reject(response);
-         }
-       };
+        if (xhr.status >= 200 && xhr.status < 400) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      };
 
-       xhr.onerror = () => reject(Error('Request failed'));
-       xhr.send(stringify(request.data, request.headers));
-     });
+      xhr.onerror = () => reject(Error('Request failed'));
+      xhr.send(stringify(request.data, request.headers));
+    });
   }
 
   get(request) {
