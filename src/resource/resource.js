@@ -132,16 +132,23 @@ class Resource {
     };
   }
 
+  static makeHttpRequest(method, request, className) {
+    return new Promise((resolve, reject) => {
+      return method(request).then((response) => {
+        resolve(new className(response.json));
+      }).catch((error) => {
+        reject(error);
+      });
+    });
+  }
+
   static get(params) {
     if (!this.url) {
       throw 'Resource url not defined';
     }
 
     const request = new Request(buildUri(this.url, params));
-
-    return new Http().get(request).then((response) => {
-      return new this(response.json);
-    });
+    return this.makeHttpRequest(new Http().get, request, this);
   }
 
   static getCollection(params) {
@@ -161,12 +168,17 @@ class Resource {
       throw 'Resource url not defined';
     }
 
-    const resource = buildCleanResource(data);
-    const request = new Request(buildUri(this.url, params), JSON.stringify(resource));
+    let url = this.url;
 
-    return new Http().post(request).then((response) => {
-      return new this(response.json);
-    });
+    if (this.urlOverrides && this.urlOverrides.POST) {
+      url = this.urlOverrides.POST;
+    }
+
+    const resource = buildCleanResource(data);
+    const request = new Request(buildUri(url, params), JSON.stringify(resource));
+    request.headers['Content-Type'] = 'application/json';
+
+    return this.makeHttpRequest(new Http().post, request, this);
   }
 
   update() {
@@ -176,10 +188,9 @@ class Resource {
 
     const data = buildCleanResource(this);
     const request = new Request(buildUri(this.constructor.url, data), JSON.stringify(data));
+    request.headers['Content-Type'] = 'application/json';
 
-    return new Http().patch(request).then((response) => {
-      return new this(response.json);
-    });
+    return this.constructor.makeHttpRequest(new Http().patch, request, this.constructor);
   }
 
   replace() {
@@ -189,10 +200,9 @@ class Resource {
 
     const data = buildCleanResource(this);
     const request = new Request(buildUri(this.constructor.url, data), JSON.stringify(data));
+    request.headers['Content-Type'] = 'application/json';
 
-    return new Http().put(request).then((response) => {
-      return new this(response.json);
-    });
+    return this.constructor.makeHttpRequest(new Http().put, request, this.constructor);
   }
 
   delete() {
@@ -201,10 +211,7 @@ class Resource {
     }
 
     const request = new Request(buildUri(this.constructor.url, this));
-
-    return new Http().delete(request).then((response) => {
-      return new this(response.json);
-    });
+    return this.constructor.makeHttpRequest(new Http().delete, request, this.constructor);
   }
 }
 
