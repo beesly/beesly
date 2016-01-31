@@ -5,6 +5,8 @@ Http.prototype.send = jest.genMockFn();
 const Resource = require('../../src/resource/resource').default;
 const Response = require('../../src/http/response').default;
 
+import Link from '../../src/resource/link';
+
 describe('Resource', () => {
   beforeEach(() => {
     Http.prototype.send.mockClear();
@@ -38,7 +40,7 @@ describe('Resource', () => {
       resource.hydrate({_links: links});
 
       expect(resource._links).toBeUndefined();
-      expect(resource.internalHalLinks).toBe(links);
+      expect(resource.internalHalLinks).toEqual(links);
     });
   });
 
@@ -49,7 +51,8 @@ describe('Resource', () => {
 
       resource.hydrate({_links: links});
 
-      expect(resource.getLink('self')).toEqual(links.self.href);
+      expect(resource.getLink('self')).toEqual(jasmine.any(Link));
+      expect(resource.getLink('self')).toEqual(links.self);
     });
 
     it('should return undefined if the link doesn\'t exist', () => {

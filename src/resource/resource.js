@@ -1,4 +1,5 @@
 import Http from '../http/http';
+import Link from './link';
 import Request from '../http/request';
 import ResourceCollection from './resource-collection';
 import uriTemplate from 'uri-templates';
@@ -83,7 +84,7 @@ class Resource {
 
   getLink(name) {
     if (name in this.internalHalLinks) {
-      return this.internalHalLinks[name].href;
+      return this.internalHalLinks[name];
     }
   }
 
@@ -94,7 +95,9 @@ class Resource {
           this.hydrateEmbeddedResource(data[key]);
           break;
         case '_links':
-          this.internalHalLinks = data[key];
+          Object.keys(data._links).forEach((index) => {
+            this.internalHalLinks[index] = Link.create(data._links[index]);
+          });
           break;
         default:
           this[key] = data[key];
