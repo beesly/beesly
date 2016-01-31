@@ -3,6 +3,7 @@
 > Beesly makes interacting with HAL+JSON resources a joyful experience
 
 [![Build Status](https://img.shields.io/travis/mrkrstphr/beesly.svg?style=flat-square)](https://travis-ci.org/mrkrstphr/beesly)
+[![Version](https://img.shields.io/npm/v/beesly.svg?style=flat-square)](https://www.npmjs.com/package/beesly)
 
 [Read the Documentation](https://beesly.github.io)
 
