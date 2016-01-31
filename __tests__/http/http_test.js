@@ -55,7 +55,7 @@ describe('Http', function() {
 
       try {
         let http = new Http();
-        http.send('foo', new Request('/foo', ''));
+        http.send(new Request('get', '/foo', ''));
       } catch (e) {
         exception = e;
       }
@@ -70,9 +70,9 @@ describe('Http', function() {
       spyOn(this.xhr, 'send');
 
       let http = new Http();
-      http.send('foo', new Request('/foo', ''));
+      http.send(new Request('get', '/foo', ''));
 
-      expect(this.xhr.open).toHaveBeenCalledWith('foo', '/foo', true);
+      expect(this.xhr.open).toHaveBeenCalledWith('get', '/foo', true);
       expect(this.xhr.send).toHaveBeenCalledWith('');
     });
 
@@ -83,7 +83,7 @@ describe('Http', function() {
       spyOn(this.xhr, 'send');
 
       let http = new Http();
-      let promise = http.send('foo', new Request('/foo', '')).then((response) => {
+      let promise = http.send(new Request('get', '/foo', '')).then((response) => {
         expect(response).toEqual(jasmine.any(Response));
       });
 
@@ -102,7 +102,7 @@ describe('Http', function() {
       spyOn(this.xhr, 'send');
 
       let http = new Http();
-      let promise = http.send('foo', new Request('/foo', '')).then((response) => {
+      let promise = http.send(new Request('get', '/foo', '')).then((response) => {
         expect(response.statusCode).toEqual(200);
         expect(response.text).toEqual('foobarrr');
       });
@@ -121,7 +121,7 @@ describe('Http', function() {
       spyOn(this.xhr, 'send');
 
       let http = new Http();
-      let promise = http.send('foo', new Request('/foo', '')).then(() => {}, (error) => {
+      let promise = http.send(new Request('get', '/foo', '')).then(() => {}, (error) => {
         expect(error).toEqual(jasmine.any(Response));
         expect(error.statusCode).toEqual(500);
       });
@@ -139,7 +139,7 @@ describe('Http', function() {
       spyOn(this.xhr, 'send');
 
       let http = new Http();
-      let promise = http.send('foo', new Request('/foo', '')).then(() => {}, (error) => {
+      let promise = http.send(new Request('get', '/foo', '')).then(() => {}, (error) => {
         expect(error.message).toEqual('Request failed');
       });
 
@@ -155,81 +155,11 @@ describe('Http', function() {
       spyOn(this.xhr, 'send');
 
       let http = new Http(),
-        request = new Request('/foo', {"foo": "bar"}, {'Content-type': 'application/json'});
+        request = new Request('get', '/foo', {"foo": "bar"}, {'Content-type': 'application/json'});
 
-      http.get(request);
+      http.send(request);
 
       expect(this.xhr.send).toHaveBeenCalledWith('{"foo":"bar"}');
-    });
-  });
-
-  describe('get()', () => {
-    it('should make an HTTP GET request', () => {
-      this.xhr.withCredentials = true;
-      spyOn(window, 'XMLHttpRequest').andReturn(this.xhr);
-      spyOn(this.xhr, 'open');
-      spyOn(this.xhr, 'send');
-
-      let http = new Http();
-      http.get(new Request('/foo', ''));
-
-      expect(this.xhr.open).toHaveBeenCalledWith('GET', '/foo', true);
-    });
-  });
-
-  describe('get()', () => {
-    it('should make an HTTP GET request', () => {
-      this.xhr.withCredentials = true;
-      spyOn(window, 'XMLHttpRequest').andReturn(this.xhr);
-      spyOn(this.xhr, 'open');
-      spyOn(this.xhr, 'send');
-
-      let http = new Http();
-      http.post(new Request('/foo', ''));
-
-      expect(this.xhr.open).toHaveBeenCalledWith('POST', '/foo', true);
-    });
-  });
-
-  describe('put()', () => {
-    it('should make an HTTP GET request', () => {
-      this.xhr.withCredentials = true;
-      spyOn(window, 'XMLHttpRequest').andReturn(this.xhr);
-      spyOn(this.xhr, 'open');
-      spyOn(this.xhr, 'send');
-
-      let http = new Http();
-      http.put(new Request('/foo', ''));
-
-      expect(this.xhr.open).toHaveBeenCalledWith('PUT', '/foo', true);
-    });
-  });
-
-  describe('patch()', () => {
-    it('should make an HTTP GET request', () => {
-      this.xhr.withCredentials = true;
-      spyOn(window, 'XMLHttpRequest').andReturn(this.xhr);
-      spyOn(this.xhr, 'open');
-      spyOn(this.xhr, 'send');
-
-      let http = new Http();
-      http.patch(new Request('/foo', ''));
-
-      expect(this.xhr.open).toHaveBeenCalledWith('PATCH', '/foo', true);
-    });
-  });
-
-  describe('delete()', () => {
-    it('should make an HTTP DELETE request', () => {
-      this.xhr.withCredentials = true;
-      spyOn(window, 'XMLHttpRequest').andReturn(this.xhr);
-      spyOn(this.xhr, 'open');
-      spyOn(this.xhr, 'send');
-
-      let http = new Http();
-      http.delete(new Request('/foo', ''));
-
-      expect(this.xhr.open).toHaveBeenCalledWith('DELETE', '/foo', true);
     });
   });
 

@@ -46,6 +46,16 @@ function buildUri(base, params) {
   return url;
 }
 
+function makeHttpRequest(request, className) {
+  return new Promise((resolve, reject) => {
+    return new Http().send(request).then((response) => {
+      resolve(new className(response.json)); // eslint-disable-line new-cap
+    }).catch((error) => {
+      reject(error);
+    });
+  });
+}
+
 class Resource {
   constructor(data) {
     this.internalHalLinks = {};
@@ -132,23 +142,13 @@ class Resource {
     };
   }
 
-  static makeHttpRequest(method, request, className) {
-    return new Promise((resolve, reject) => {
-      return method(request).then((response) => {
-        resolve(new className(response.json)); // eslint-disable-line new-cap
-      }).catch((error) => {
-        reject(error);
-      });
-    });
-  }
-
   static get(params) {
     if (!this.url) {
       throw new Error('Resource url not defined');
     }
 
-    const request = new Request(buildUri(this.url, params));
-    return this.makeHttpRequest(new Http().get, request, this);
+    const request = new Request('get', buildUri(this.url, params));
+    return makeHttpRequest(request, this);
   }
 
   static getCollection(params) {
@@ -156,9 +156,9 @@ class Resource {
       throw new Error('Resource url not defined');
     }
 
-    const request = new Request(buildUri(this.url, params));
+    const request = new Request('get', buildUri(this.url, params));
 
-    return new Http().get(request).then((response) => {
+    return new Http().send(request).then((response) => {
       return new ResourceCollection(this.collectionKey, this, response.json);
     });
   }
@@ -175,10 +175,10 @@ class Resource {
     }
 
     const resource = buildCleanResource(data);
-    const request = new Request(buildUri(url, params), JSON.stringify(resource));
-    request.headers['Content-Type'] = 'application/json';
+    const request = new Request('post', buildUri(url, params), JSON.stringify(resource));
+    request.setHeader('Content-Type', 'application/json');
 
-    return this.makeHttpRequest(new Http().post, request, this);
+    return makeHttpRequest(request, this);
   }
 
   update() {
@@ -187,10 +187,10 @@ class Resource {
     }
 
     const data = buildCleanResource(this);
-    const request = new Request(buildUri(this.constructor.url, data), JSON.stringify(data));
-    request.headers['Content-Type'] = 'application/json';
+    const request = new Request('patch', buildUri(this.constructor.url, data), JSON.stringify(data));
+    request.setHeader('Content-Type', 'application/json');
 
-    return this.constructor.makeHttpRequest(new Http().patch, request, this.constructor);
+    return makeHttpRequest(request, this.constructor);
   }
 
   replace() {
@@ -199,10 +199,10 @@ class Resource {
     }
 
     const data = buildCleanResource(this);
-    const request = new Request(buildUri(this.constructor.url, data), JSON.stringify(data));
-    request.headers['Content-Type'] = 'application/json';
+    const request = new Request('put', buildUri(this.constructor.url, data), JSON.stringify(data));
+    request.setHeader('Content-Type', 'application/json');
 
-    return this.constructor.makeHttpRequest(new Http().put, request, this.constructor);
+    return makeHttpRequest(request, this.constructor);
   }
 
   delete() {
@@ -210,8 +210,8 @@ class Resource {
       throw new Error('Resource url not defined');
     }
 
-    const request = new Request(buildUri(this.constructor.url, this));
-    return this.constructor.makeHttpRequest(new Http().delete, request, this.constructor);
+    const request = new Request('delete', buildUri(this.constructor.url, this));
+    return makeHttpRequest(request, this.constructor);
   }
 }
 

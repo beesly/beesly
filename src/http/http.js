@@ -17,11 +17,11 @@ function stringify(data, headers) {
   return str.slice(0, -1);
 }
 
-function buildXhr(method, request) {
+function buildXhr(request) {
   const xhr = new XMLHttpRequest();
 
   if ('withCredentials' in xhr) {
-    xhr.open(method, request.url, true);
+    xhr.open(request.method, request.url, true);
   } else {
     throw new Error('CORS is not supported on this platform');
   }
@@ -64,18 +64,10 @@ class Http {
     this.interceptors = [];
   }
 
-  constructor() {
-    this.get = this.get.bind(this);
-    this.post = this.post.bind(this);
-    this.patch = this.patch.bind(this);
-    this.put = this.put.bind(this);
-    this.delete = this.delete.bind(this);
-  }
-
-  send(method, request) {
+  send(request) {
     Http.interceptRequest(request);
 
-    const xhr = buildXhr(method, request);
+    const xhr = buildXhr(request);
 
     return new Promise((resolve, reject) => {
       xhr.onload = () => {
@@ -93,28 +85,8 @@ class Http {
       };
 
       xhr.onerror = () => reject(Error('Request failed'));
-      xhr.send(stringify(request.data, request.headers));
+      xhr.send(stringify(request.content, request.headers));
     });
-  }
-
-  get(request) {
-    return this.send('GET', request);
-  }
-
-  post(request) {
-    return this.send('POST', request);
-  }
-
-  patch(request) {
-    return this.send('PATCH', request);
-  }
-
-  put(request) {
-    return this.send('PUT', request);
-  }
-
-  delete(request) {
-    return this.send('DELETE', request);
   }
 }
 
