@@ -187,7 +187,11 @@ class Resource {
     }
 
     const data = buildCleanResource(this);
-    const request = new Request('patch', buildUri(this.constructor.url, data), JSON.stringify(data));
+    const request = new Request(
+      'patch',
+      buildUri(this.constructor.url, data),
+      JSON.stringify(data)
+    );
     request.setHeader('Content-Type', 'application/json');
 
     return makeHttpRequest(request, this.constructor);
@@ -199,7 +203,11 @@ class Resource {
     }
 
     const data = buildCleanResource(this);
-    const request = new Request('put', buildUri(this.constructor.url, data), JSON.stringify(data));
+    const request = new Request(
+      'put',
+      buildUri(this.constructor.url, data),
+      JSON.stringify(data)
+    );
     request.setHeader('Content-Type', 'application/json');
 
     return makeHttpRequest(request, this.constructor);
