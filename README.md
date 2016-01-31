@@ -9,10 +9,10 @@
 A modest example:
 
 ```js
-import BaseResource from 'beesly';
+import {Resource} from 'beesly';
 import {Customer, LineItem} from './resources';
 
-export class Order extends BaseResource {
+export class Order extends Resource {
   setup() {
     this.hasOne('customer', {class: Customer});
     this.hasMany('line_item', {class: LineItem, accessor: 'lineItems'});
