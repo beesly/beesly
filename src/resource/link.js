@@ -6,7 +6,7 @@ class Link {
   }
 
   fill(params) {
-    let href = this.toString();
+    const href = this.toString();
 
     if (!href) {
       return href;
