@@ -59,7 +59,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = {
 	  Resource: __webpack_require__(2).default,
 	  Http: __webpack_require__(3).default,
-	  Request: __webpack_require__(5).default
+	  Request: __webpack_require__(7).default
 	};
 
 
@@ -93,15 +93,19 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _http2 = _interopRequireDefault(_http);
 
-	var _request = __webpack_require__(5);
+	var _link = __webpack_require__(5);
+
+	var _link2 = _interopRequireDefault(_link);
+
+	var _request = __webpack_require__(7);
 
 	var _request2 = _interopRequireDefault(_request);
 
-	var _resourceCollection = __webpack_require__(6);
+	var _resourceCollection = __webpack_require__(8);
 
 	var _resourceCollection2 = _interopRequireDefault(_resourceCollection);
 
-	var _uriTemplates = __webpack_require__(7);
+	var _uriTemplates = __webpack_require__(6);
 
 	var _uriTemplates2 = _interopRequireDefault(_uriTemplates);
 
@@ -124,32 +128,42 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	function buildOptions(name, single, options) {
-	  options = options || {};
+	  var config = options || {};
 
-	  options.single = single;
-	  options.name = name;
+	  config.single = single;
+	  config.name = name;
 
-	  if (!options.accessor) {
-	    options.accessor = name;
+	  if (!config.accessor) {
+	    config.accessor = name;
 	  }
 
-	  if (!options.class) {
-	    options.class = Resource;
+	  if (!config.class) {
+	    config.class = Resource; // eslint-disable-line no-use-before-define
 	  }
 
-	  return options;
+	  return config;
 	}
 
 	function buildUri(base, params) {
-	  params = params || {};
+	  var urlParams = params || {};
 
-	  var url = (0, _uriTemplates2.default)(base).fill(params);
+	  var url = (0, _uriTemplates2.default)(base).fill(urlParams);
 
 	  if (url.substr(url.length - 1) === '/') {
 	    url = url.substr(0, url.length - 1);
 	  }
 
 	  return url;
+	}
+
+	function makeHttpRequest(request, className) {
+	  return new Promise(function (resolve, reject) {
+	    return new _http2.default().send(request).then(function (response) {
+	      resolve(new className(response.json)); // eslint-disable-line new-cap
+	    }).catch(function (error) {
+	      reject(error);
+	    });
+	  });
 	}
 
 	var Resource = function () {
@@ -184,7 +198,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'getLink',
 	    value: function getLink(name) {
 	      if (name in this.internalHalLinks) {
-	        return this.internalHalLinks[name].href;
+	        return this.internalHalLinks[name];
 	      }
 	    }
 	  }, {
@@ -198,7 +212,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            _this.hydrateEmbeddedResource(data[key]);
 	            break;
 	          case '_links':
-	            _this.internalHalLinks = data[key];
+	            Object.keys(data._links).forEach(function (index) {
+	              _this.internalHalLinks[index] = _link2.default.create(data._links[index]);
+	            });
 	            break;
 	          default:
 	            _this[key] = data[key];
@@ -234,13 +250,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'hydrateSingleEmbeddedResource',
 	    value: function hydrateSingleEmbeddedResource(data, config) {
-	      this.embeddedResources[config.accessor] = new config.class(data);
+	      this.embeddedResources[config.accessor] = new config.class(data); // eslint-disable-line new-cap
 	      this.createEmbeddedAccesor(config);
 	    }
 	  }, {
 	    key: 'hydrateOneToManyEmbeddedResource',
 	    value: function hydrateOneToManyEmbeddedResource(data, config) {
-	      var resource = new config.class(data);
+	      var resource = new config.class(data); // eslint-disable-line new-cap
 	      this.embeddedResources[config.accessor].push(resource);
 	      this.createEmbeddedAccesor(config);
 	    }
@@ -256,95 +272,82 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'update',
 	    value: function update() {
-	      var _this4 = this;
-
 	      if (!this.constructor.url) {
-	        throw 'Resource url not defined';
+	        throw new Error('Resource url not defined');
 	      }
 
 	      var data = buildCleanResource(this);
-	      var request = new _request2.default(buildUri(this.constructor.url, data), JSON.stringify(data));
+	      var request = new _request2.default('patch', buildUri(this.constructor.url, data), JSON.stringify(data));
+	      request.setHeader('Content-Type', 'application/json');
 
-	      return new _http2.default().patch(request).then(function (response) {
-	        return new _this4(response.json);
-	      });
+	      return makeHttpRequest(request, this.constructor);
 	    }
 	  }, {
 	    key: 'replace',
 	    value: function replace() {
-	      var _this5 = this;
-
 	      if (!this.constructor.url) {
-	        throw 'Resource url not defined';
+	        throw new Error('Resource url not defined');
 	      }
 
 	      var data = buildCleanResource(this);
-	      var request = new _request2.default(buildUri(this.constructor.url, data), JSON.stringify(data));
+	      var request = new _request2.default('put', buildUri(this.constructor.url, data), JSON.stringify(data));
+	      request.setHeader('Content-Type', 'application/json');
 
-	      return new _http2.default().put(request).then(function (response) {
-	        return new _this5(response.json);
-	      });
+	      return makeHttpRequest(request, this.constructor);
 	    }
 	  }, {
 	    key: 'delete',
 	    value: function _delete() {
-	      var _this6 = this;
-
 	      if (!this.constructor.url) {
-	        throw 'Resource url not defined';
+	        throw new Error('Resource url not defined');
 	      }
 
-	      var request = new _request2.default(buildUri(this.constructor.url, this));
-
-	      return new _http2.default().delete(request).then(function (response) {
-	        return new _this6(response.json);
-	      });
+	      var request = new _request2.default('delete', buildUri(this.constructor.url, this));
+	      return makeHttpRequest(request, this.constructor);
 	    }
 	  }], [{
 	    key: 'get',
 	    value: function get(params) {
-	      var _this7 = this;
-
 	      if (!this.url) {
-	        throw 'Resource url not defined';
+	        throw new Error('Resource url not defined');
 	      }
 
-	      var request = new _request2.default(buildUri(this.url, params));
-
-	      return new _http2.default().get(request).then(function (response) {
-	        return new _this7(response.json);
-	      });
+	      var request = new _request2.default('get', buildUri(this.url, params));
+	      return makeHttpRequest(request, this);
 	    }
 	  }, {
 	    key: 'getCollection',
 	    value: function getCollection(params) {
-	      var _this8 = this;
+	      var _this4 = this;
 
 	      if (!this.url) {
-	        throw 'Resource url not defined';
+	        throw new Error('Resource url not defined');
 	      }
 
-	      var request = new _request2.default(buildUri(this.url, params));
+	      var request = new _request2.default('get', buildUri(this.url, params));
 
-	      return new _http2.default().get(request).then(function (response) {
-	        return new _resourceCollection2.default(_this8.collectionKey, _this8, response.json);
+	      return new _http2.default().send(request).then(function (response) {
+	        return new _resourceCollection2.default(_this4.collectionKey, _this4, response.json);
 	      });
 	    }
 	  }, {
 	    key: 'create',
 	    value: function create(data, params) {
-	      var _this9 = this;
-
 	      if (!this.url) {
-	        throw 'Resource url not defined';
+	        throw new Error('Resource url not defined');
+	      }
+
+	      var url = this.url;
+
+	      if (this.urlOverrides && this.urlOverrides.POST) {
+	        url = this.urlOverrides.POST;
 	      }
 
 	      var resource = buildCleanResource(data);
-	      var request = new _request2.default(buildUri(this.url, params), JSON.stringify(resource));
+	      var request = new _request2.default('post', buildUri(url, params), JSON.stringify(resource));
+	      request.setHeader('Content-Type', 'application/json');
 
-	      return new _http2.default().post(request).then(function (response) {
-	        return new _this9(response.json);
-	      });
+	      return makeHttpRequest(request, this);
 	    }
 	  }]);
 
@@ -411,11 +414,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return str.slice(0, -1);
 	}
 
-	function buildXhr(method, request) {
+	function buildXhr(request) {
 	  var xhr = new XMLHttpRequest();
 
 	  if ('withCredentials' in xhr) {
-	    xhr.open(method, request.url, true);
+	    xhr.open(request.method, request.url, true);
 	  } else {
 	    throw new Error('CORS is not supported on this platform');
 	  }
@@ -448,6 +451,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return xhr;
 	}
 
+	function parseHeaders(headerString) {
+	  var headers = {};
+
+	  if (!headerString) {
+	    return headers;
+	  }
+
+	  var headerRows = headerString.trim().split('\r\n');
+	  headerRows.forEach(function (header) {
+	    var values = header.split(':', 2);
+	    headers[values[0].trim()] = values[1].trim();
+	  });
+
+	  return headers;
+	}
+
 	var Http = function () {
 	  function Http() {
 	    _classCallCheck(this, Http);
@@ -455,52 +474,27 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  _createClass(Http, [{
 	    key: 'send',
-	    value: function send(method, request) {
+	    value: function send(request) {
 	      Http.interceptRequest(request);
 
-	      var xhr = buildXhr(method, request);
+	      var xhr = buildXhr(request);
 
 	      return new Promise(function (resolve, reject) {
 	        xhr.onload = function () {
-	          var response = xhr.responseText;
+	          var response = new _response2.default(xhr.status, xhr.responseText, parseHeaders(xhr.getAllResponseHeaders()));
 
 	          if (xhr.status >= 200 && xhr.status < 400) {
-	            resolve(new _response2.default(xhr.status, response));
-	            return;
+	            resolve(response);
+	          } else {
+	            reject(response);
 	          }
-	          reject(Error('Received error response with code ' + xhr.status), response);
 	        };
 
 	        xhr.onerror = function () {
 	          return reject(Error('Request failed'));
 	        };
-	        xhr.send(stringify(request.data, request.headers));
+	        xhr.send(stringify(request.content, request.headers));
 	      });
-	    }
-	  }, {
-	    key: 'get',
-	    value: function get(request) {
-	      return this.send('GET', request);
-	    }
-	  }, {
-	    key: 'post',
-	    value: function post(request) {
-	      return this.send('POST', request);
-	    }
-	  }, {
-	    key: 'patch',
-	    value: function patch(request) {
-	      return this.send('PATCH', request);
-	    }
-	  }, {
-	    key: 'put',
-	    value: function put(request) {
-	      return this.send('PUT', request);
-	    }
-	  }, {
-	    key: 'delete',
-	    value: function _delete(request) {
-	      return this.send('DELETE', request);
 	    }
 	  }], [{
 	    key: 'addIntercept',
@@ -511,7 +505,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'interceptRequest',
 	    value: function interceptRequest(request) {
 	      Http.interceptors.forEach(function (interceptor) {
-	        interceptor.call(null, request);
+	        return interceptor.call(null, request);
 	      });
 
 	      return request;
@@ -577,31 +571,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 5 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var Request = function Request(url, data, headers) {
-	  _classCallCheck(this, Request);
-
-	  this.url = url;
-	  this.headers = headers || {};
-	  this.data = data;
-	};
-
-	exports.default = Request;
-
-/***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-	"use strict";
+	'use strict';
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -609,35 +581,49 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 
+	var _uriTemplates = __webpack_require__(6);
+
+	var _uriTemplates2 = _interopRequireDefault(_uriTemplates);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var ResourceCollection = function () {
-	  function ResourceCollection(key, ctor, data) {
-	    _classCallCheck(this, ResourceCollection);
-
-	    this.key = key;
-	    this.ctor = ctor;
-	    this.data = data;
+	var Link = function () {
+	  function Link() {
+	    _classCallCheck(this, Link);
 	  }
 
-	  _createClass(ResourceCollection, [{
-	    key: "items",
-	    get: function get() {
-	      var _this = this;
+	  _createClass(Link, [{
+	    key: 'fill',
+	    value: function fill(params) {
+	      var href = this.toString();
 
-	      return this.data._embedded[this.key].map(function (item) {
-	        return new _this.ctor(item);
-	      });
+	      if (!href) {
+	        return href;
+	      }
+
+	      return (0, _uriTemplates2.default)(href).fill(params);
+	    }
+	  }, {
+	    key: 'toString',
+	    value: function toString() {
+	      return 'href' in this ? this.href : undefined;
+	    }
+	  }], [{
+	    key: 'create',
+	    value: function create(link) {
+	      return Object.assign(new Link(), link);
 	    }
 	  }]);
 
-	  return ResourceCollection;
+	  return Link;
 	}();
 
-	exports.default = ResourceCollection;
+	exports.default = Link;
 
 /***/ },
-/* 7 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (global, factory) {
@@ -1060,6 +1046,93 @@ return /******/ (function(modules) { // webpackBootstrap
 		return UriTemplate;
 	});
 
+
+/***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Request = function () {
+	  function Request(method, url, content, headers) {
+	    _classCallCheck(this, Request);
+
+	    this.method = method;
+	    this.url = url;
+	    this.headers = headers || {};
+	    this.content = content;
+	  }
+
+	  _createClass(Request, [{
+	    key: "hasHeader",
+	    value: function hasHeader(header) {
+	      return header in this.headers;
+	    }
+	  }, {
+	    key: "getHeader",
+	    value: function getHeader(header) {
+	      if (this.hasHeader(header)) {
+	        return this.headers[header];
+	      }
+	    }
+	  }, {
+	    key: "setHeader",
+	    value: function setHeader(name, value) {
+	      this.headers[name] = value;
+	    }
+	  }]);
+
+	  return Request;
+	}();
+
+	exports.default = Request;
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var ResourceCollection = function () {
+	  function ResourceCollection(key, ctor, data) {
+	    _classCallCheck(this, ResourceCollection);
+
+	    this.key = key;
+	    this.ctor = ctor;
+	    this.data = data;
+	  }
+
+	  _createClass(ResourceCollection, [{
+	    key: "items",
+	    get: function get() {
+	      var _this = this;
+
+	      return this.data._embedded[this.key].map(function (item) {
+	        return new _this.ctor(item); // eslint-disable-line new-cap
+	      });
+	    }
+	  }]);
+
+	  return ResourceCollection;
+	}();
+
+	exports.default = ResourceCollection;
 
 /***/ }
 /******/ ])
