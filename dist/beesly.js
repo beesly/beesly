@@ -59,7 +59,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = {
 	  Resource: __webpack_require__(2).default,
 	  Http: __webpack_require__(3).default,
-	  Request: __webpack_require__(7).default
+	  Request: __webpack_require__(7).default,
+	  Response: __webpack_require__(4).default
 	};
 
 
