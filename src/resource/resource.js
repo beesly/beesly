@@ -57,6 +57,10 @@ function makeHttpRequest(request, className) {
   });
 }
 
+const getDefaultEmbeddedValue = (config) => {
+  return config.single ? undefined : [];
+};
+
 class Resource {
   constructor(data) {
     this.internalHalLinks = {};
@@ -144,8 +148,7 @@ class Resource {
   createEmbeddedAccesor(config) {
     this[config.accessor] = () => {
       return config.accessor in this.embeddedResources ?
-        this.embeddedResources[config.accessor] :
-        (config.single ? undefined : []);
+        this.embeddedResources[config.accessor] : getDefaultEmbeddedValue(config);
     };
   }
 
