@@ -194,6 +194,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'hasMany',
 	    value: function hasMany(name, options) {
 	      this.embeddedConfig[name] = buildOptions(name, false, options);
+	      this.createEmbeddedAccesor(this.embeddedConfig[name]);
 	    }
 	  }, {
 	    key: 'getLink',
@@ -267,7 +268,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var _this3 = this;
 
 	      this[config.accessor] = function () {
-	        return _this3.embeddedResources[config.accessor];
+	        return config.accessor in _this3.embeddedResources ? _this3.embeddedResources[config.accessor] : config.single ? undefined : [];
 	      };
 	    }
 	  }, {

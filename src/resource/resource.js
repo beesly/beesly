@@ -80,6 +80,7 @@ class Resource {
 
   hasMany(name, options) {
     this.embeddedConfig[name] = buildOptions(name, false, options);
+    this.createEmbeddedAccesor(this.embeddedConfig[name]);
   }
 
   getLink(name) {
@@ -141,7 +142,9 @@ class Resource {
 
   createEmbeddedAccesor(config) {
     this[config.accessor] = () => {
-      return this.embeddedResources[config.accessor];
+      return config.accessor in this.embeddedResources ?
+        this.embeddedResources[config.accessor] :
+        (config.single ? undefined : []);
     };
   }
 
