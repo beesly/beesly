@@ -61,6 +61,24 @@ describe('Resource', () => {
     });
   });
 
+  describe('hasOne()', () => {
+    it('should eagerly create an accessor', () => {
+      var resource = new Resource();
+      resource.hasOne('home', {class: Resource});
+      expect(resource.home).toEqual(jasmine.any(Function));
+      expect(resource.home()).toBeUndefined();
+    });
+  });
+
+  describe('hasMany()', () => {
+    it('should eagerly create an accessor', () => {
+      var resource = new Resource();
+      resource.hasMany('homes', {class: Resource});
+      expect(resource.homes).toEqual(jasmine.any(Function));
+      expect(resource.homes()).toEqual([]);
+    });
+  });
+
   describe('embedded retrieval', () => {
     it('should return a single, hydrated resource when configured', () => {
       var resource = new Resource();

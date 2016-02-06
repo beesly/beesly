@@ -76,6 +76,7 @@ class Resource {
 
   hasOne(name, options) {
     this.embeddedConfig[name] = buildOptions(name, true, options);
+    this.createEmbeddedAccesor(this.embeddedConfig[name]);
   }
 
   hasMany(name, options) {
