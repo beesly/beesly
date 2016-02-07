@@ -111,6 +111,81 @@ describe('Resource', () => {
     });
   });
 
+  describe('[hasMany() accessor]', () => {
+    it('should return the collection', () => {
+      var resource = new Resource();
+      resource.hasMany('cars', {class: Resource});
+      resource.hydrate({_embedded: {cars: [{model: 'Malibu'}, {model: 'Hot Wheels'}]}});
+
+      expect(resource.cars().length).toBe(2);
+      expect(resource.cars()[0].model).toBe('Malibu');
+      expect(resource.cars()[1].model).toBe('Hot Wheels');
+    });
+
+    it('should allow adding elements by passing a non array', () => {
+      var resource = new Resource();
+      resource.hasMany('cars', {class: Resource});
+      resource.hydrate({_embedded: {cars: [{model: 'Malibu'}]}});
+
+      resource.cars({model: 'Tonka'});
+
+      expect(resource.cars().length).toBe(2);
+      expect(resource.cars()[0].model).toBe('Malibu');
+      expect(resource.cars()[1].model).toBe('Tonka');
+    });
+
+    it('should allow replacing elements by passing an array', () => {
+      var resource = new Resource();
+      resource.hasMany('cars', {class: Resource});
+      resource.hydrate({_embedded: {cars: [{model: 'Malibu'}]}});
+
+      resource.cars([{model: 'Tonka'}]);
+
+      expect(resource.cars().length).toBe(1);
+      expect(resource.cars()[0].model).toBe('Tonka');
+    });
+
+    it('should allow clearing the elements by passing an empty array', () => {
+      var resource = new Resource();
+      resource.hasMany('cars', {class: Resource});
+      resource.hydrate({_embedded: {cars: [{model: 'Malibu'}]}});
+
+      resource.cars([]);
+
+      expect(resource.cars().length).toBe(0);
+    });
+  });
+
+  describe('[hasOne() accessor]', () => {
+    it('should return the related resource', () => {
+      var resource = new Resource();
+      resource.hasOne('home', {class: Resource});
+      resource.hydrate({_embedded: {home: [{address: '123 Main St'}]}});
+
+      expect(resource.home().address).toBe('123 Main St');
+    });
+
+    it('should allow replacing the related resource by passing a value', () => {
+      var resource = new Resource();
+      resource.hasOne('home', {class: Resource});
+      resource.hydrate({_embedded: {home: [{address: '123 Main St'}]}});
+
+      resource.home({address: '455 First St'});
+
+      expect(resource.home().address).toBe('455 First St');
+    });
+
+    it('should allow clearing the related resource by passing null', () => {
+      var resource = new Resource();
+      resource.hasOne('home', {class: Resource});
+      resource.hydrate({_embedded: {home: [{address: '123 Main St'}]}});
+
+      resource.home(null);
+
+      expect(resource.home()).toBe(null);
+    });
+  });
+
   describe('update()', () => {
     it('should patch the data', () => {
       let promise = new Promise((resolve, reject) => {

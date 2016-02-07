@@ -146,7 +146,23 @@ class Resource {
   }
 
   createEmbeddedAccesor(config) {
-    this[config.accessor] = () => {
+    this[config.accessor] = (data) => {
+      if (typeof data != 'undefined') {
+        if (Array.isArray(data)) {
+          if (config.single) {
+            this.embeddedResources[config.accessor] = data[0];
+          } else {
+            this.embeddedResources[config.accessor] = data;
+          }
+        } else {
+          if (config.single) {
+            this.embeddedResources[config.accessor] = data;
+          } else {
+            this.embeddedResources[config.accessor].push(data);
+          }
+        }
+      }
+
       return config.accessor in this.embeddedResources ?
         this.embeddedResources[config.accessor] : getDefaultEmbeddedValue(config);
     };
