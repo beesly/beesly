@@ -22,6 +22,7 @@
     "babel-preset-es2015": "^6.1.18",
     "eslint": "^1.10.3",
     "eslint-config-airbnb": "^3.1.0",
+    "eslint-plugin-smells": "^1.0.1",
     "jest-cli": "^0.8.0",
     "watch": "^0.17.1",
     "webpack": "^1.12.10"
@@ -36,7 +37,19 @@
     ]
   },
   "eslintConfig": {
-    "extends": "airbnb/base"
+    "extends": "airbnb/base",
+    "plugins": [
+      "smells"
+    ],
+    "rules": {
+      "no-param-reassign": [2, { "props": false }],
+      "max-nested-callbacks": [2, 0],
+      "max-statements": [2, 15],
+      "max-depth": [1, 2],
+      "complexity": [2, 5],
+      "smells/no-this-assign": 1,
+      "smells/no-complex-string-concat": 1
+    }
   },
   "jest": {
     "setupEnvScriptFile": "test/environment.js",
