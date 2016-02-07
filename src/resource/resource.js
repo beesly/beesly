@@ -61,6 +61,22 @@ const getDefaultEmbeddedValue = (config) => {
   return config.single ? undefined : [];
 };
 
+const setEmbeddedData = (resource, config, data) => {
+  if (Array.isArray(data)) {
+    if (config.single) {
+      resource.embeddedResources[config.accessor] = data[0];
+    } else {
+      resource.embeddedResources[config.accessor] = data;
+    }
+  } else {
+    if (config.single) {
+      resource.embeddedResources[config.accessor] = data;
+    } else {
+      resource.embeddedResources[config.accessor].push(data);
+    }
+  }
+};
+
 class Resource {
   constructor(data) {
     this.internalHalLinks = {};
@@ -147,20 +163,8 @@ class Resource {
 
   createEmbeddedAccesor(config) {
     this[config.accessor] = (data) => {
-      if (typeof data != 'undefined') {
-        if (Array.isArray(data)) {
-          if (config.single) {
-            this.embeddedResources[config.accessor] = data[0];
-          } else {
-            this.embeddedResources[config.accessor] = data;
-          }
-        } else {
-          if (config.single) {
-            this.embeddedResources[config.accessor] = data;
-          } else {
-            this.embeddedResources[config.accessor].push(data);
-          }
-        }
+      if (typeof data !== 'undefined') {
+        setEmbeddedData(this, config, data);
       }
 
       return config.accessor in this.embeddedResources ?
