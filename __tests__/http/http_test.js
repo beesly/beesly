@@ -72,7 +72,7 @@ describe('Http', function() {
       let http = new Http();
       http.send(new Request('get', '/foo', ''));
 
-      expect(this.xhr.open).toHaveBeenCalledWith('get', '/foo', true);
+      expect(this.xhr.open).toHaveBeenCalledWith('GET', '/foo', true);
       expect(this.xhr.send).toHaveBeenCalledWith('');
     });
 
