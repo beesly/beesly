@@ -21,7 +21,7 @@ function buildXhr(request) {
   const xhr = new XMLHttpRequest();
 
   if ('withCredentials' in xhr) {
-    xhr.open(request.method, request.url, true);
+    xhr.open(request.method.toUpperCase(), request.url, true);
   } else {
     throw new Error('CORS is not supported on this platform');
   }
