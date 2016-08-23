@@ -44,6 +44,13 @@ describe('Resource', () => {
     });
   });
 
+  describe('rawData', () => {
+    it('should return a plain object representation of the resource', () => {
+      const resource = new Resource({foo: 'bar', _embedded: {buzz: [{blah: 'bleh'}]}});
+      expect(resource.rawData).toEqual({foo: 'bar'});
+    });
+  });
+
   describe('getLink()', () => {
     it('should retrieve the link by name', () => {
       var resource = new Resource(),

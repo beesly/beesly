@@ -12,6 +12,10 @@ function buildCleanResource(resource) {
       return;
     }
 
+    if (typeof resource[key] === 'function') {
+      return;
+    }
+
     serialized[key] = resource[key];
   });
 
@@ -159,6 +163,10 @@ class Resource {
     const resource = new config.class(data); // eslint-disable-line new-cap
     this.embeddedResources[config.accessor].push(resource);
     this.createEmbeddedAccesor(config);
+  }
+
+  get rawData() {
+    return buildCleanResource(this);
   }
 
   createEmbeddedAccesor(config) {
