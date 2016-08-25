@@ -1,6 +1,6 @@
 {
   "name": "beesly",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Beesly makes interacting with HAL+JSON resources a joyful experience",
   "author": "Kristopher Wilson <kristopherwilson@gmail.com>",
   "license": "MIT",
