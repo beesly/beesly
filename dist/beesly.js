@@ -58,6 +58,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = {
 	  Resource: __webpack_require__(2).default,
+	  ResourceCollection: __webpack_require__(8).default,
 	  Http: __webpack_require__(3).default,
 	  Request: __webpack_require__(7).default,
 	  Response: __webpack_require__(4).default
@@ -119,6 +120,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  Object.keys(resource).forEach(function (key) {
 	    if (key === 'internalHalLinks' || key === 'embeddedConfig' || key === 'embeddedResources') {
+	      return;
+	    }
+
+	    if (typeof resource[key] === 'function') {
 	      return;
 	    }
 
@@ -331,6 +336,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var request = new _request2.default('delete', buildUri(this.constructor.url, this));
 	      return makeHttpRequest(request, this.constructor);
+	    }
+	  }, {
+	    key: 'rawData',
+	    get: function get() {
+	      return buildCleanResource(this);
 	    }
 	  }], [{
 	    key: 'get',
