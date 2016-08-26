@@ -39,13 +39,19 @@ function buildOptions(name, single, options) {
   return config;
 }
 
-function buildUri(base, params) {
+function buildUri(base, params, qs) {
   const urlParams = params || {};
+  const queryString = qs || {};
 
   let url = uriTemplate(base).fill(urlParams);
 
   if (url.substr(url.length - 1) === '/') {
     url = url.substr(0, url.length - 1);
+  }
+
+  if (Object.keys(queryString).length) {
+    const stringy = Object.keys(queryString).map(key => `${key}=${queryString[key]}`).join('&');
+    url += `?${stringy}`;
   }
 
   return url;
@@ -180,21 +186,21 @@ class Resource {
     };
   }
 
-  static get(params) {
+  static get(params, qs) {
     if (!this.url) {
       throw new Error('Resource url not defined');
     }
 
-    const request = new Request('get', buildUri(this.url, params));
+    const request = new Request('get', buildUri(this.url, params, qs));
     return makeHttpRequest(request, this);
   }
 
-  static getCollection(params) {
+  static getCollection(params, qs) {
     if (!this.url) {
       throw new Error('Resource url not defined');
     }
 
-    const request = new Request('get', buildUri(this.url, params));
+    const request = new Request('get', buildUri(this.url, params, qs));
 
     return new Http().send(request).then((response) => {
       return new ResourceCollection(this.collectionKey, this, response.json);
