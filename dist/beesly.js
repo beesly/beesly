@@ -1144,7 +1144,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 8 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -1164,13 +1164,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  _createClass(ResourceCollection, [{
-	    key: "items",
+	    key: 'items',
 	    get: function get() {
 	      var _this = this;
 
-	      return this.data._embedded[this.key].map(function (item) {
-	        return new _this.ctor(item); // eslint-disable-line new-cap
-	      });
+	      if ('_embedded' in this.data && this.key in this.data._embedded) {
+	        return this.data._embedded[this.key].map(function (item) {
+	          return new _this.ctor(item); // eslint-disable-line new-cap
+	        });
+	      }
+
+	      return [];
 	    }
 	  }]);
 
