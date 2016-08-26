@@ -150,13 +150,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return config;
 	}
 
-	function buildUri(base, params) {
+	function buildUri(base, params, qs) {
 	  var urlParams = params || {};
+	  var queryString = qs || {};
 
 	  var url = (0, _uriTemplates2.default)(base).fill(urlParams);
 
 	  if (url.substr(url.length - 1) === '/') {
 	    url = url.substr(0, url.length - 1);
+	  }
+
+	  if (Object.keys(queryString).length) {
+	    var stringy = Object.keys(queryString).map(function (key) {
+	      return key + '=' + queryString[key];
+	    }).join('&');
+	    url += '?' + stringy;
 	  }
 
 	  return url;
@@ -344,24 +352,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }], [{
 	    key: 'get',
-	    value: function get(params) {
+	    value: function get(params, qs) {
 	      if (!this.url) {
 	        throw new Error('Resource url not defined');
 	      }
 
-	      var request = new _request2.default('get', buildUri(this.url, params));
+	      var request = new _request2.default('get', buildUri(this.url, params, qs));
 	      return makeHttpRequest(request, this);
 	    }
 	  }, {
 	    key: 'getCollection',
-	    value: function getCollection(params) {
+	    value: function getCollection(params, qs) {
 	      var _this4 = this;
 
 	      if (!this.url) {
 	        throw new Error('Resource url not defined');
 	      }
 
-	      var request = new _request2.default('get', buildUri(this.url, params));
+	      var request = new _request2.default('get', buildUri(this.url, params, qs));
 
 	      return new _http2.default().send(request).then(function (response) {
 	        return new _resourceCollection2.default(_this4.collectionKey, _this4, response.json);
