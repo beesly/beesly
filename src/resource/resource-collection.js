@@ -6,9 +6,13 @@ class ResourceCollection {
   }
 
   get items() {
-    return this.data._embedded[this.key].map((item) => {
-      return new this.ctor(item); // eslint-disable-line new-cap
-    });
+    if ('_embedded' in this.data && this.key in this.data._embedded) {
+      return this.data._embedded[this.key].map((item) => {
+        return new this.ctor(item); // eslint-disable-line new-cap
+      });
+    }
+
+    return [];
   }
 }
 
