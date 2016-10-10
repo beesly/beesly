@@ -60,7 +60,7 @@ function buildUri(base, params, qs) {
 function makeHttpRequest(request, className) {
   return new Promise((resolve, reject) => {
     return new Http().send(request).then((response) => {
-      if (response.statusCode != 204 && response.contentType === 'application/hal+json') {
+      if (response.statusCode !== 204 && response.contentType === 'application/hal+json') {
         resolve(new className(response.json)); // eslint-disable-line new-cap
       } else {
         resolve(null);

@@ -14,7 +14,7 @@ class Response {
   }
 
   get statusCode() {
-    return parseInt(this.code);
+    return parseInt(this.code, 10);
   }
 
   get contentType() {
