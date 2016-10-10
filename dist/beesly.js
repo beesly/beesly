@@ -171,7 +171,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	function makeHttpRequest(request, className) {
 	  return new Promise(function (resolve, reject) {
 	    return new _http2.default().send(request).then(function (response) {
-	      resolve(new className(response.json)); // eslint-disable-line new-cap
+	      if (response.statusCode != 204 && response.contentType === 'application/hal+json') {
+	        resolve(new className(response.json)); // eslint-disable-line new-cap
+	      } else {
+	        resolve(null);
+	      }
 	    }).catch(function (error) {
 	      reject(error);
 	    });
