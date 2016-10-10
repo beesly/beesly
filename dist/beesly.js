@@ -69,13 +69,11 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 1 */
 /***/ function(module, exports) {
 
-	// required to safely use babel/register within a browserify codebase
-
 	"use strict";
 
 	exports.__esModule = true;
 
-	exports["default"] = function () {};
+	exports.default = function () {};
 
 	module.exports = exports["default"];
 
@@ -573,7 +571,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 4 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -584,7 +582,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var Response = function () {
-	  function Response(code, body, headers) {
+	  function Response(code, body) {
+	    var headers = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
 	    _classCallCheck(this, Response);
 
 	    this.code = code;
@@ -593,19 +593,33 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  _createClass(Response, [{
-	    key: "json",
+	    key: 'json',
 	    get: function get() {
 	      return JSON.parse(this.body);
 	    }
 	  }, {
-	    key: "text",
+	    key: 'text',
 	    get: function get() {
 	      return this.body;
 	    }
 	  }, {
-	    key: "statusCode",
+	    key: 'statusCode',
 	    get: function get() {
-	      return this.code;
+	      return parseInt(this.code);
+	    }
+	  }, {
+	    key: 'contentType',
+	    get: function get() {
+	      // find the content type, case insensitively:
+	      var contentType = Object.keys(this.headers).filter(function (h) {
+	        return h.toLowerCase() === 'content-type';
+	      });
+
+	      if (contentType) {
+	        return this.headers[contentType];
+	      }
+
+	      return null;
 	    }
 	  }]);
 
