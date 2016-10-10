@@ -1,5 +1,5 @@
 class Response {
-  constructor(code, body, headers) {
+  constructor(code, body, headers = {}) {
     this.code = code;
     this.body = body;
     this.headers = headers;
@@ -14,7 +14,18 @@ class Response {
   }
 
   get statusCode() {
-    return this.code;
+    return parseInt(this.code, 10);
+  }
+
+  get contentType() {
+    // find the content type, case insensitively:
+    const contentType = Object.keys(this.headers).filter(h => h.toLowerCase() === 'content-type');
+
+    if (contentType) {
+      return this.headers[contentType];
+    }
+
+    return null;
   }
 }
 

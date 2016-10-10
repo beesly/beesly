@@ -21,5 +21,18 @@ describe('Response', () => {
       expect(response.statusCode).toEqual(200);
     });
   });
+  
+  describe('get contentType', () => {
+    it('should return the content type, case insensitively', () => {
+      let response = new Response(200, '', {"Content-Type": 'foo'});
+      expect(response.contentType).toEqual('foo');
+
+      response = new Response(200, '', {"Content-type": 'bar'});
+      expect(response.contentType).toEqual('bar');
+
+      response = new Response(200, '', {"content-Type": 'bazz'});
+      expect(response.contentType).toEqual('bazz');
+    });
+  })
 
 });

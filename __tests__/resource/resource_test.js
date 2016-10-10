@@ -250,7 +250,7 @@ describe('Resource', () => {
   describe('static get()', () => {
     pit('should return a hydrated instance', () => {
       let promise = new Promise((resolve, reject) => {
-        resolve(new Response(200, '{"name": "bob"}'))
+        resolve(new Response(200, '{"name": "bob"}', {"Content-Type": 'application/hal+json'}));
       });
 
       Http.prototype.send.mockReturnValueOnce(promise);
@@ -266,7 +266,7 @@ describe('Resource', () => {
   describe('static create()', () => {
     pit('should post to the resource URL and return a hydrated instance', () => {
       let promise = new Promise((resolve, reject) => {
-        resolve(new Response(201, '{"id": 200, "name": "bob"}'))
+        resolve(new Response(201, '{"id": 200, "name": "bob"}', {"Content-Type": 'application/hal+json'}));
       });
 
       Http.prototype.send.mockReturnValueOnce(promise);
