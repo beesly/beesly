@@ -3,6 +3,13 @@ language: node_js
 
 node_js:
   - 5.0
+  - 6.0
+  - node
+
+cache:
+  yarn: true
+  directories:
+    - node_modules
 
 script:
   - npm run lint
