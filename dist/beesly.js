@@ -1160,7 +1160,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 8 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -1169,6 +1169,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _http = __webpack_require__(3);
+
+	var _http2 = _interopRequireDefault(_http);
+
+	var _request = __webpack_require__(7);
+
+	var _request2 = _interopRequireDefault(_request);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1182,20 +1192,52 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  _createClass(ResourceCollection, [{
+	    key: 'hasLink',
+	    value: function hasLink(name) {
+	      return '_links' in this.data && name in this.data._links;
+	    }
+	  }, {
 	    key: 'getLink',
 	    value: function getLink(name) {
-	      if (this.data._links && name in this.data._links) {
+	      if (this.hasLink(name)) {
 	        return this.data._links[name];
 	      }
 	    }
 	  }, {
+	    key: 'hasMore',
+	    value: function hasMore() {
+	      return this.hasLink('next');
+	    }
+	  }, {
+	    key: 'paginate',
+	    value: function paginate() {
+	      var _this = this;
+
+	      var request = new _request2.default('get', this.getLink('next').href);
+
+	      return new _http2.default().send(request).then(function (response) {
+	        return new ResourceCollection(_this.key, _this.ctor, response.json);
+	      });
+	    }
+	  }, {
+	    key: 'mergeWith',
+	    value: function mergeWith(otherCollection) {
+	      var data = Object.assign({}, this.data);
+	      data._embedded = Object.assign({}, this.data._embedded);
+	      data._links = otherCollection.data._links;
+
+	      data._embedded[this.key] = data._embedded[this.key].concat(otherCollection.data._embedded[this.key]);
+
+	      return new ResourceCollection(this.key, this.ctor, data);
+	    }
+	  }, {
 	    key: 'items',
 	    get: function get() {
-	      var _this = this;
+	      var _this2 = this;
 
 	      if ('_embedded' in this.data && this.key in this.data._embedded) {
 	        return this.data._embedded[this.key].map(function (item) {
-	          return new _this.ctor(item); // eslint-disable-line new-cap
+	          return new _this2.ctor(item); // eslint-disable-line new-cap
 	        });
 	      }
 

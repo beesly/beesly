@@ -1,3 +1,6 @@
+import Http from '../http/http';
+import Request from '../http/request';
+
 class ResourceCollection {
   constructor(key, ctor, data) {
     this.key = key;
@@ -15,10 +18,38 @@ class ResourceCollection {
     return [];
   }
 
+  hasLink(name) {
+    return '_links' in this.data && name in this.data._links;
+  }
+
   getLink(name) {
-    if (this.data._links && name in this.data._links) {
+    if (this.hasLink(name)) {
       return this.data._links[name];
     }
+  }
+
+  hasMore() {
+    return this.hasLink('next');
+  }
+
+  paginate() {
+    const request = new Request('get', this.getLink('next').href);
+
+    return new Http().send(request).then((response) => {
+      return new ResourceCollection(this.key, this.ctor, response.json);
+    });
+  }
+
+  mergeWith(otherCollection) {
+    const data = Object.assign({}, this.data);
+    data._embedded = Object.assign({}, this.data._embedded);
+    data._links = otherCollection.data._links;
+
+    data._embedded[this.key] = data._embedded[this.key].concat(
+      otherCollection.data._embedded[this.key]
+    );
+
+    return new ResourceCollection(this.key, this.ctor, data);
   }
 }
 
