@@ -14,6 +14,12 @@ class ResourceCollection {
 
     return [];
   }
+
+  getLink(name) {
+    if (this.data._links && name in this.data._links) {
+      return this.data._links[name];
+    }
+  }
 }
 
 export default ResourceCollection;

@@ -171,7 +171,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function makeHttpRequest(request, className) {
 	  return new Promise(function (resolve, reject) {
 	    return new _http2.default().send(request).then(function (response) {
-	      if (response.statusCode != 204 && response.contentType === 'application/hal+json') {
+	      if (response.statusCode !== 204 && response.contentType === 'application/hal+json') {
 	        resolve(new className(response.json)); // eslint-disable-line new-cap
 	      } else {
 	        resolve(null);
@@ -609,7 +609,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'statusCode',
 	    get: function get() {
-	      return parseInt(this.code);
+	      return parseInt(this.code, 10);
 	    }
 	  }, {
 	    key: 'contentType',
@@ -1182,6 +1182,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  _createClass(ResourceCollection, [{
+	    key: 'getLink',
+	    value: function getLink(name) {
+	      if (this.data._links && name in this.data._links) {
+	        return this.data._links[name];
+	      }
+	    }
+	  }, {
 	    key: 'items',
 	    get: function get() {
 	      var _this = this;
