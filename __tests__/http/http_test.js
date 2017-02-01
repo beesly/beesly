@@ -49,7 +49,7 @@ describe('Http', function() {
 
   describe('send()', () => {
     it('should throw an Error if CORS is not supported', () => {
-      spyOn(window, 'XMLHttpRequest').andReturn(this.xhr);
+      spyOn(window, 'XMLHttpRequest').and.returnValue(this.xhr);
 
       let exception = null;
 
@@ -65,7 +65,7 @@ describe('Http', function() {
 
     it('should make the correct HTTP request', () => {
       this.xhr.withCredentials = true;
-      spyOn(window, 'XMLHttpRequest').andReturn(this.xhr);
+      spyOn(window, 'XMLHttpRequest').and.returnValue(this.xhr);
       spyOn(this.xhr, 'open');
       spyOn(this.xhr, 'send');
 
@@ -76,9 +76,9 @@ describe('Http', function() {
       expect(this.xhr.send).toHaveBeenCalledWith('');
     });
 
-    pit('should return a Promise that resolves to a Response', () => {
+    it('should return a Promise that resolves to a Response', () => {
       this.xhr.withCredentials = true;
-      spyOn(window, 'XMLHttpRequest').andReturn(this.xhr);
+      spyOn(window, 'XMLHttpRequest').and.returnValue(this.xhr);
       spyOn(this.xhr, 'open');
       spyOn(this.xhr, 'send');
 
@@ -95,9 +95,9 @@ describe('Http', function() {
       return promise;
     });
 
-    pit('should properly hydrate a response', () => {
+    it('should properly hydrate a response', () => {
       this.xhr.withCredentials = true;
-      spyOn(window, 'XMLHttpRequest').andReturn(this.xhr);
+      spyOn(window, 'XMLHttpRequest').and.returnValue(this.xhr);
       spyOn(this.xhr, 'open');
       spyOn(this.xhr, 'send');
 
@@ -114,9 +114,9 @@ describe('Http', function() {
       return promise;
     });
 
-    pit('should reject the promise on a bad status code', () => {
+    it('should reject the promise on a bad status code', () => {
       this.xhr.withCredentials = true;
-      spyOn(window, 'XMLHttpRequest').andReturn(this.xhr);
+      spyOn(window, 'XMLHttpRequest').and.returnValue(this.xhr);
       spyOn(this.xhr, 'open');
       spyOn(this.xhr, 'send');
 
@@ -132,9 +132,9 @@ describe('Http', function() {
       return promise;
     });
 
-    pit('should reject the promise on error', () => {
+    it('should reject the promise on error', () => {
       this.xhr.withCredentials = true;
-      spyOn(window, 'XMLHttpRequest').andReturn(this.xhr);
+      spyOn(window, 'XMLHttpRequest').and.returnValue(this.xhr);
       spyOn(this.xhr, 'open');
       spyOn(this.xhr, 'send');
 
@@ -150,7 +150,7 @@ describe('Http', function() {
 
     it('should properly format the JSON data', () => {
       this.xhr.withCredentials = true;
-      spyOn(window, 'XMLHttpRequest').andReturn(this.xhr);
+      spyOn(window, 'XMLHttpRequest').and.returnValue(this.xhr);
       spyOn(this.xhr, 'open');
       spyOn(this.xhr, 'send');
 
